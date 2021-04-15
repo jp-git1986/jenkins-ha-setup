@@ -1,0 +1,108 @@
+---
+  - name: Adding ops center repo
+    get_url:
+     url: "https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees-core-cm.repo"
+     dest: "/etc/yum.repos.d/cloudbees-core-cm.repo"
+  - name: Adding ops center rpm repo key
+    rpm_key:
+     state: present
+     key: "https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees.com.key"
+  - name: Update system
+    yum:
+     name: "*"
+     state: latest
+  - name: Installing cloudbees core cm package
+    yum:
+     name: cloudbees-core-cm
+     state: latest
+  - name: enable cloudbees core cm on boot
+    service:
+     name: cloudbees-core-cm
+     state: started
+     enabled: yes
+  - name: check_task
+    debug:
+     msg="{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+
+  - name: Changing permissions on software directories
+    file:
+     path: "{{item}}"
+     state: directory
+     mode: 0777
+    with_items:
+    - /software/war
+    - /software/plugins
+    - "{{ jenkins_opc_home }}"
+
+  - name: Changing the Java options of cloud bees core cm file
+    lineinfile:
+     path: "/etc/sysconfig/cloudbees-core-cm"
+     regexp: '^JENKINS_ARGS=""'
+     line: JENKINS_ARGS="-Dhudson.TcpSlaveAgentListener.hostName={{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}} --webroot=/software/war --pluginroot=/software/plugins"
+
+  - name: Changing JOC Default port from 8080 to 8888
+    lineinfile:
+     regexp: '^JENKINS_PORT="8080"'
+     line: JENKINS_PORT="{{ jenkins_opc_port }}"
+     path: /etc/sysconfig/cloudbees-core-cm
+
+  - name: Restarting JOC after changes in configuration
+    service: 
+     name: cloudbees-core-cm
+     state: restarted
+  - name: Wait for Jenkins to start up before proceeding.
+    uri:
+      url: "http://{{ jenkins_hostname }}:{{ jenkins_opc_port }}"
+      method: GET
+      return_content: "yes"
+      timeout: 5
+      body_format: raw
+      follow_redirects: "no"
+      status_code: 200,403
+    register: result
+    until: (result.status == 403 or result.status == 200) and (result.content.find("Please wait while") == -1)
+    retries: "{{ jenkins_connection_retries }}"
+    delay: "{{ jenkins_connection_delay }}"
+    changed_when: false
+    check_mode: false
+
+  - name: Remove Jenkins security init scripts after first startup.
+    file:
+      path: "{{ jenkins_opc_home }}/init.groovy.d/basic-security.groovy"
+      state: absent
+    ignore_errors: true
+
+  - name: Creating jenkins init groovy script folder
+    file:
+     path: "{{ jenkins_opc_home }}/init.groovy.d"
+     state: directory
+     owner: cloudbees-core-cm
+     group: cloudbees-core-cm
+     mode: 0775
+  - name: configure default users
+    template:
+      src: basic-security.groovy.j2
+      dest: "{{ jenkins_opc_home }}/init.groovy.d/basic-security.groovy"
+      owner: cloudbees-core-cm
+      group: cloudbees-core-cm
+      mode: 0775
+    register: jenkins_users_config 
+  - name: Restarting JOC after changes in configuration
+    service:
+     name: cloudbees-core-cm
+     state: restarted
+  - name: Wait for Jenkins to start up before proceeding.
+    uri:
+      url: "http://{{ jenkins_hostname }}:{{ jenkins_opc_port }}"
+      method: GET
+      return_content: "yes"
+      timeout: 5
+      body_format: raw
+      follow_redirects: "no"
+      status_code: 200,403
+    register: result
+    until: (result.status == 403 or result.status == 200) and (result.content.find("Please wait while") == -1)
+    retries: "{{ jenkins_connection_retries }}"
+    delay: "{{ jenkins_connection_delay }}"
+    changed_when: false
+    check_mode: false

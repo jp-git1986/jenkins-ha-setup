@@ -1,0 +1,4 @@
+---
+# vars file for opc-config
+jenkins_opc_home: /var/lib/cloudbees-core-cm
+jenkins_opc_port: 8888
