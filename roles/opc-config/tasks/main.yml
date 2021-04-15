@@ -8,11 +8,11 @@
      state: present
      key: "https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees.com.key"
   - name: Update system
-    yum:
+    dnf:
      name: "*"
      state: latest
   - name: Installing cloudbees core cm package
-    yum:
+    dnf:
      name: cloudbees-core-cm
      state: latest
   - name: enable cloudbees core cm on boot

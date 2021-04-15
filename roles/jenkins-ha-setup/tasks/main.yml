@@ -5,6 +5,7 @@
       - curl
       - wget
       - java-1.8.0-openjdk-devel
+      - python3
     state: present
     
 - name: Ensure Jenkins repo is installed.
@@ -18,7 +19,7 @@
     key: "{{ jenkins_repo_key_url }}"
     
 - name: Install jenkins stable latest version
-  yum:
+  dnf:
    name: jenkins
    state: latest
 
@@ -48,6 +49,7 @@
     group: jenkins
     mode: u+rwx
     follow: true
+    recurse: yes
     
 - name: Set the Jenkins home directory.
   lineinfile:

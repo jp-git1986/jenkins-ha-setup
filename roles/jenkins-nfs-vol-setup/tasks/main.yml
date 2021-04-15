@@ -6,6 +6,7 @@
        path: /var/lib/jenkins
        state: directory
 
+
     - name: Ensure mount directory exists.
       file:
         path: "{{ efs_mount_dir }}"
