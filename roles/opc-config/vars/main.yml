@@ -3,3 +3,8 @@
 jenkins_opc_home: /var/lib/cloudbees-core-cm
 jenkins_opc_port: 8888
 jenkins_opc_hostname: localhost
+jenkins_opc_repo_url: https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees-core-cm.repo
+jenkins_opc_repo_key_url: https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees.com.key
+jenkins_opc_init_file: /etc/sysconfig/cloudbees-core-cm
+jenkins_opc_username: cloudbees-core-cm
+jenkins_opc_groupname: cloudbees-core-cm

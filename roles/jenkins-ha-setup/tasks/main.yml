@@ -34,7 +34,10 @@
    state: latest
 
 - name: Ensure Jenkins is started and runs on startup.
-  service: name=jenkins state=started enabled=yes
+  service: 
+   name: jenkins 
+   state: started 
+   enabled: yes
   
 - name: Check if jenkins_init_file exists.
   stat:
@@ -137,14 +140,16 @@
   template:
     src: basic-security.groovy.j2
     dest: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
-    owner: "{{ jenkins_process_user }}"
-    group: "{{ jenkins_process_group }}"
+    owner: "{{ jenkins_username }}"
+    group: "{{ jenkins_groupname }}"
     mode: 0775
   register: jenkins_users_config
   tags: primary,standby
   
 - name: restart jenkins
-  service: name=jenkins state=restarted
+  service: 
+   name: jenkins 
+   state: restarted
   tags: primary,standby
 
 # Update Jenkins and install configured plugins.
@@ -167,8 +172,8 @@
   file:
     path: "{{ jenkins_home }}/updates"
     state: directory
-    owner: jenkins
-    group: jenkins
+    owner: "{{ jenkins_username }}"
+    group: "{{ jenkins_groupname }}"
 
 - name: Download current plugin updates from Jenkins update site.
   get_url:
