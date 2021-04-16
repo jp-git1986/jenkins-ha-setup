@@ -71,6 +71,11 @@
    path: "{{ jenkins_init_file }}"
    regexp: '^JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true"'
    state: absent
+- name: Restricting chown permission for jenkins home directories during upgrade
+  lineinfile:
+   path: "{{ jenkins_init_file }}"
+   regexp: '^JENKINS_INSTALL_SKIP_CHOWN.*'
+   line: JENKINS_INSTALL_SKIP_CHOWN = "false"
 - name: restart jenkins after java options added
   service:
    name: jenkins

@@ -1,4 +1,12 @@
 ---
+  - name: Install initial dependencies.
+    package:
+     name:
+     - curl
+     - wget
+     - java-1.8.0-openjdk-devel
+     - python3
+     state: present
   - name: Adding ops center repo
     get_url:
      url: "https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees-core-cm.repo"
@@ -52,7 +60,7 @@
      state: restarted
   - name: Wait for Jenkins to start up before proceeding.
     uri:
-      url: "http://{{ jenkins_hostname }}:{{ jenkins_opc_port }}"
+      url: "http://{{ jenkins_opc_hostname }}:{{ jenkins_opc_port }}"
       method: GET
       return_content: "yes"
       timeout: 5
@@ -93,7 +101,7 @@
      state: restarted
   - name: Wait for Jenkins to start up before proceeding.
     uri:
-      url: "http://{{ jenkins_hostname }}:{{ jenkins_opc_port }}"
+      url: "http://{{ jenkins_opc_hostname }}:{{ jenkins_opc_port }}"
       method: GET
       return_content: "yes"
       timeout: 5
