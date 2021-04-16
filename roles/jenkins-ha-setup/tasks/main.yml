@@ -17,6 +17,10 @@
   rpm_key:
     state: present
     key: "{{ jenkins_repo_key_url }}"
+- name: Update system
+  dnf:
+   name: "*"
+   state: latest 
     
 - name: Install jenkins stable latest version
   dnf:
