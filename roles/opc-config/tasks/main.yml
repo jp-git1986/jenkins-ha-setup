@@ -1,12 +1,17 @@
 ---
+  #- name: Install initial dependencies.
+  #  package:
+   #  name:
+   #  - curl
+   #  - wget
+    # - java-1.8.0-openjdk-devel
+    # - python3
+    # state: present
   - name: Install initial dependencies.
     package:
-     name:
-     - curl
-     - wget
-     - java-1.8.0-openjdk-devel
-     - python3
+     name: "{{ item }}"
      state: present
+    with_items: "{{ dependent_pkgs }}" 
   - name: Adding ops center repo
     get_url:
      url: "https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees-core-cm.repo"
