@@ -58,7 +58,7 @@
     path: "{{ jenkins_home }}"
     state: directory
     owner: "{{ jenkins_username }}"
-    group: " {{ jenkins_groupname }}"
+    #group: " {{ jenkins_groupname }}"
     mode: u+rwx
     follow: true
     recurse: yes
@@ -97,7 +97,7 @@
 
 - name: Wait for Jenkins to start up before proceeding.
   uri:
-    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/cli/"
+    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
     method: GET
     return_content: "yes"
     timeout: 5
@@ -126,8 +126,8 @@
     path: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
     state: absent
   ignore_errors: true
-  tags: 
-  - primary-standby
+#  tags: 
+ # - primary-standby
 
 - name: Creating jenkins init groovy script folder
   file:
@@ -136,8 +136,8 @@
    owner: jenkins
    group: jenkins
    mode: 0775
-  tags: 
-  - primary-standby
+  #tags: 
+  #- primary-standby
 
 - name: configure default users
   template:
@@ -147,8 +147,8 @@
     group: "{{ jenkins_groupname }}"
     mode: 0775
   register: jenkins_users_config
-  tags: 
-  - primary-standby
+  #tags: 
+  #- primary-standby
   
 - name: restart jenkins
   service: 
@@ -160,21 +160,21 @@
 # Update Jenkins and install configured plugins.
 #- include_tasks: plugins.yml
 
-- name: Get Jenkins admin password from file.
-  slurp:
-    src: "{{ jenkins_admin_password_file }}"
-  register: adminpasswordfile
-  no_log: true
-  when: jenkins_admin_password_file | default(false)
-  tags: 
-  - primary-standby
+#- name: Get Jenkins admin password from file.
+ # slurp:
+  #  src: "{{ jenkins_admin_password_file }}"
+  #register: adminpasswordfile
+  #no_log: true
+  #when: jenkins_admin_password_file | default(false)
+  #tags: 
+  #- primary-standby
 
-- name: Set Jenkins admin password fact.
-  set_fact:
-    jenkins_admin_password: "{{ adminpasswordfile['stdout'] | default(jenkins_admin_password) }}"
-  no_log: true
-  tags: 
-  - primary-standby
+#- name: Set Jenkins admin password fact.
+ # set_fact:
+  #  jenkins_admin_password: "{{ adminpasswordfile['stdout'] | default(jenkins_admin_password) }}"
+  #no_log: true
+  #tags: 
+  #- primary-standby
 
 # Update Jenkins so that plugin updates don't fail.
 - name: Create Jenkins updates directory.
@@ -183,8 +183,8 @@
     state: directory
     owner: "{{ jenkins_username }}"
     group: "{{ jenkins_groupname }}"
-  tags: 
-  - primary-standby
+  #tags: 
+  #- primary-standby
 
 - name: Download current plugin updates from Jenkins update site.
   get_url:
@@ -198,15 +198,15 @@
   until: get_result is success
   retries: 3
   delay: 2
-  tags: 
-  - primary-standby
+  #tags: 
+  #- primary-standby
 
 - name: Remove first and last line from json file.
   replace:
     path: "{{ jenkins_home }}/updates/default.json"
     regexp: "1d;$d"
-  tags: 
-  - primary
+  #tags: 
+  #- primary
 
 - name: Install Jenkins plugins using password.
   jenkins_plugin:
@@ -228,5 +228,5 @@
   until: plugin_result is success
   retries: 3
   delay: 2
-  tags:
-  - never
+#  tags:
+ # - never
