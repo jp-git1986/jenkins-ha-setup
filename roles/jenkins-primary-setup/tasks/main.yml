@@ -88,7 +88,8 @@
   lineinfile:
    path: "{{ jenkins_init_file }}"
    regexp: '^JENKINS_INSTALL_SKIP_CHOWN.*'
-   line: JENKINS_INSTALL_SKIP_CHOWN = "false"
+   line: JENKINS_INSTALL_SKIP_CHOWN ="false"
+   
 - name: restart jenkins after java options added
   service:
    name: jenkins
