@@ -17,8 +17,7 @@
 - name: Ensure Jenkins repo is installed.
   get_url:
     url: "{{ jenkins_repo_url }}"
-    dest: /etc/yum.repos.d/jenkins.repo
-    
+    dest: /etc/yum.repos.d/jenkins.repo  
 - name: Add Jenkins repo GPG key.
   rpm_key:
     state: present
@@ -63,7 +62,7 @@
     mode: u+rwx
     follow: true
     recurse: yes
-    
+
 - name: Set the Jenkins home directory.
   lineinfile:
     dest: "{{ jenkins_init_file }}"
@@ -84,6 +83,7 @@
    path: "{{ jenkins_init_file }}"
    regexp: '^JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true"'
    state: absent
+
 - name: Restricting chown permission for jenkins home directories during upgrade
   lineinfile:
    path: "{{ jenkins_init_file }}"
@@ -126,7 +126,8 @@
     path: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
     state: absent
   ignore_errors: true
-  tags: primary,standby
+  tags: 
+  - primary-standby
 
 - name: Creating jenkins init groovy script folder
   file:
@@ -135,7 +136,9 @@
    owner: jenkins
    group: jenkins
    mode: 0775
-  tags: primary,standby
+  tags: 
+  - primary-standby
+
 - name: configure default users
   template:
     src: basic-security.groovy.j2
@@ -144,13 +147,15 @@
     group: "{{ jenkins_groupname }}"
     mode: 0775
   register: jenkins_users_config
-  tags: primary,standby
+  tags: 
+  - primary-standby
   
 - name: restart jenkins
   service: 
    name: jenkins 
    state: restarted
-  tags: primary,standby
+  tags: 
+  - primary-standby
 
 # Update Jenkins and install configured plugins.
 #- include_tasks: plugins.yml
@@ -161,11 +166,15 @@
   register: adminpasswordfile
   no_log: true
   when: jenkins_admin_password_file | default(false)
+  tags: 
+  - primary-standby
 
 - name: Set Jenkins admin password fact.
   set_fact:
     jenkins_admin_password: "{{ adminpasswordfile['stdout'] | default(jenkins_admin_password) }}"
   no_log: true
+  tags: 
+  - primary-standby
 
 # Update Jenkins so that plugin updates don't fail.
 - name: Create Jenkins updates directory.
@@ -174,6 +183,8 @@
     state: directory
     owner: "{{ jenkins_username }}"
     group: "{{ jenkins_groupname }}"
+  tags: 
+  - primary-standby
 
 - name: Download current plugin updates from Jenkins update site.
   get_url:
@@ -187,11 +198,15 @@
   until: get_result is success
   retries: 3
   delay: 2
+  tags: 
+  - primary-standby
 
 - name: Remove first and last line from json file.
   replace:
     path: "{{ jenkins_home }}/updates/default.json"
     regexp: "1d;$d"
+  tags: 
+  - primary
 
 - name: Install Jenkins plugins using password.
   jenkins_plugin:
@@ -213,3 +228,5 @@
   until: plugin_result is success
   retries: 3
   delay: 2
+  tags:
+  - never
