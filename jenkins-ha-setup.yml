@@ -1,0 +1,11 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: true
+  vars_files:
+  - vars/all.yml
+  roles:
+  - { role: jenkins-nfs-vol-setup, when: jenkins_masters is defined }
+  - { role: jenkins-primary-setup, when: jenkins_primary is defined }
+  - { role: jenkins-standby-setup, when: jenkins_standby is defined }
+  - { role: jenkins-opc-setup, when: jenkins_opc is defined }

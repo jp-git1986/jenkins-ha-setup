@@ -1,0 +1,115 @@
+---
+- name: Install initial dependencies.
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ dependent_pkgs }}"
+    
+- name: Ensure Jenkins repo is installed.
+  get_url:
+    url: "{{ jenkins_repo_url }}"
+    dest: /etc/yum.repos.d/jenkins.repo  
+- name: Add Jenkins repo GPG key.
+  rpm_key:
+    state: present
+    key: "{{ jenkins_repo_key_url }}"
+- name: Update system
+  dnf:
+   name: "*"
+   state: latest 
+    
+- name: Install jenkins stable latest version
+  dnf:
+   name: jenkins
+   state: latest
+
+- name: Ensure Jenkins is started and runs on startup.
+  service: 
+   name: jenkins 
+   state: started 
+   enabled: yes
+  
+- name: Check if jenkins_init_file exists.
+  stat:
+    path: "{{ jenkins_init_file }}"
+  register: jenkins_init_file_stat
+  
+- name: Modify variables in init file.
+  lineinfile:
+    dest: "{{ jenkins_init_file }}"
+    insertafter: '^{{ item.option }}='
+    regexp: '^{{ item.option }}=\"\${{ item.option }} '
+    line: '{{ item.option }}="${{ item.option }} {{ item.value }}"'
+    state: present
+  with_items: "{{ jenkins_init_changes }}"
+  register: jenkins_init_prefix
+  
+- name: Ensure jenkins_home {{ jenkins_home }} exists.
+  file:
+    path: "{{ jenkins_home }}"
+    state: directory
+    owner: "{{ jenkins_username }}"
+    #group: " {{ jenkins_groupname }}"
+    mode: u+rwx
+    follow: true
+    recurse: yes
+
+- name: Set the Jenkins home directory.
+  lineinfile:
+    dest: "{{ jenkins_init_file }}"
+    regexp: '^JENKINS_HOME=.*'
+    line: 'JENKINS_HOME={{ jenkins_home }}'
+  register: jenkins_home_config
+  
+- name: Set HTTP port in Jenkins config.
+  lineinfile:
+    backrefs: true
+    dest: "{{ jenkins_init_file }}"
+    regexp: '^{{ jenkins_http_port_param }}='
+    line: '{{ jenkins_http_port_param }}={{ jenkins_http_port }}'
+  register: jenkins_http_config
+
+- name: removing extra param from jenkins init config
+  lineinfile: 
+   path: "{{ jenkins_init_file }}"
+   regexp: '^JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true"'
+   state: absent
+
+- name: Restricting chown permission for jenkins home directories during upgrade
+  lineinfile:
+   path: "{{ jenkins_init_file }}"
+   regexp: '^JENKINS_INSTALL_SKIP_CHOWN.*'
+   line: JENKINS_INSTALL_SKIP_CHOWN = "false"
+
+- name: restart jenkins after java options added
+  service:
+   name: jenkins
+   state: restarted
+   
+
+- name: Wait for Jenkins to start up before proceeding.
+  uri:
+    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+    method: GET
+    return_content: "yes"
+    timeout: 5
+    body_format: raw
+    follow_redirects: "no"
+    status_code: 200,403
+  register: result
+  until: (result.status == 403 or result.status == 200) and (result.content.find("Please wait while") == -1)
+  retries: "{{ jenkins_connection_retries }}"
+  delay: "{{ jenkins_connection_delay }}"
+  changed_when: false
+  check_mode: false
+
+#- name: Get the jenkins-cli jarfile from the Jenkins server.
+#  get_url:
+#    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/jnlpJars/jenkins-cli.jar"
+#    dest: "{{ jenkins_jar_location }}"
+#  register: jarfile_get
+#  until: "'OK' in jarfile_get.msg or '304' in jarfile_get.msg or 'file already exists' in jarfile_get.msg"
+#  retries: 5
+#  delay: 10
+#  check_mode: false
+
