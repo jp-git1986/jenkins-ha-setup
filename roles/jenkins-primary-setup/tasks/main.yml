@@ -231,3 +231,42 @@
   delay: 2
 #  tags:
  # - never
+
+- name: Downloading crumb for adding slave agent user
+  uri:
+#    url: 'http://"{{ jenkins_hostname }}":"{{ jenkins_http_port }}""{{ jenkins_url_prefix }}"/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
+    url: 'http://localhost:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
+    user: "{{ jenkins_admin_username }}"
+    password: "{{ jenkins_admin_password }}"
+    force_basic_auth: yes
+    return_content: yes
+  register: crumb
+
+- name: debug crumb
+  debug:
+   msg: "{{ crumb.content.split(':')[1] }}"
+
+- name: Adding jenkins slave user automation credentials
+  uri:
+    method: POST
+    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/credentials/store/system/domain/_/createCredentials"
+    user: admin
+    password: admin
+    #validate_serts: no
+    force_basic_auth: yes
+    status_code: 200,302
+    headers:
+      Jenkins-Crumb: "{{ crumb.content.split(':')[1] }}"
+      Cookie: "{{ crumb.cookies_string }}"
+    body: |
+      json={
+        "": "0",
+        "credentials": {
+          "scope": "GLOBAL",
+          "id": "{{ slave_linux_jenkins_cred_id }}",
+          "username": "{{ slave_linux_jenkins_username }}",
+          "password": "{{ slave_linux_jenkins_password }}",
+          "description": "jenkins slave agent credentials",
+          "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
+        }
+      }
