@@ -270,3 +270,7 @@
           "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
         }
       }
+
+- name: testing
+  debug:
+   msg: "{{ hostvars[groups['jenkins_primary'][0]]['ansible_eth0']['ipv4']['address'] }}"
