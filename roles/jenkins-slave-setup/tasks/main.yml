@@ -45,7 +45,7 @@
     password: '{{ jenkins_admin_password }}'
     validate_certs: false
     timeout: 120
-    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+    url: "http://{{ hostvars['jenkins_primary']['ansible_default_ipv4']['address'] }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
     script: >-
       {{ lookup('template', 'add_linux_slave.groovy.j2') }}
 
