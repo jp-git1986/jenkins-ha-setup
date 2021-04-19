@@ -24,8 +24,8 @@ jenkins_init_changes:
   - option: "{{ jenkins_java_opt_var }}"
     value: "{{ jenkins_java_options }}"
 # Plugin list can use the plugin name, or a name/version dict.
-jenkins_plugins: []
-#  - blueocean
+jenkins_plugins: [blueocean]
+ # - blueocean
 #  - name: influxdb
 #    version: "1.12.1"
 

@@ -155,8 +155,8 @@
   service: 
    name: jenkins 
    state: restarted
-  tags: 
-  - primary-standby
+  #tags: 
+  #- primary-standby
 
 # Update Jenkins and install configured plugins.
 #- include_tasks: plugins.yml
@@ -334,7 +334,7 @@
         "password": "",
         "privateKeySource": {
           "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource",
-          "privateKey": "{{ key_file['content']|b64decode|replace('\n', '') }}"
+          "privateKey": {{ key_file['content']|b64decode|replace('\n', '') }}
         },
         "description": "Jenkins Linux Slave1 Authentication",
         "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey",
