@@ -6,29 +6,35 @@
 #    enabled: true
 #  become: true
 
+- name: Install initial dependencies.
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ dependent_pkgs }}"
+
 - name: Create a group for jenkins user
   group:
     name: '{{ slave_linux_jenkins_username }}'
     state: present
   become: true
 
-- name: Create jenkins user with root privileges
-  user:
-    name: '{{ slave_linux_jenkins_username }}'
-    group: '{{ slave_linux_jenkins_username }}'
-    password: '{{ slave_linux_jenkins_password }}'
-    state: present
-    #append: true
-    createhome: true
-  become: true
-
-#- name: Set authorized key
-#  authorized_key:
-#    user: '{{ slave_linux_jenkins_username }}'
+#- name: Create jenkins user with root privileges
+#  user:
+#    name: '{{ slave_linux_jenkins_username }}'
+#    group: '{{ slave_linux_jenkins_username }}'
+#    password: '{{ slave_linux_jenkins_password }}'
 #    state: present
-#    key: '{{ slave_linux_jenkins_public_key }}'
+#    #append: true
+#    createhome: true
 #  become: true
-#  when: slave_linux_jenkins_public_key | trim
+
+- name: Set authorized key
+  authorized_key:
+    user: '{{ slave_linux_jenkins_username }}'
+    state: present
+    key: '{{ slave_linux_jenkins_public_key }}'
+  become: true
+  when: slave_linux_jenkins_public_key | trim
 
 - name: Create slave home directory
   file:

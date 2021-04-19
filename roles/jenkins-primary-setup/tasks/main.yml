@@ -232,6 +232,10 @@
 #  tags:
  # - never
 
+- name: Pausing playbook 30 secs for jenkins crumb availability
+  pause:
+   seconds: 30  
+
 - name: Downloading crumb for adding slave agent user
   uri:
 #    url: 'http://"{{ jenkins_hostname }}":"{{ jenkins_http_port }}""{{ jenkins_url_prefix }}"/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
@@ -265,7 +269,7 @@
           "scope": "GLOBAL",
           "id": "{{ slave_linux_jenkins_cred_id }}",
           "username": "{{ slave_linux_jenkins_username }}",
-          "password": "{{ slave_linux_jenkins_password }}",
+          "password": "{{ slave_linux_jenkins_public_key|urlencode }}",
           "description": "jenkins slave agent credentials",
           "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
         }
