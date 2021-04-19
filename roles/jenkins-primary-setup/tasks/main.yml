@@ -312,6 +312,23 @@
   debug:
    msg: "{{ key_file['content']|b64decode|replace('\n', '') }}"
 
+- name: register key in a file
+  #shell: "awk -v ORS='\\n' '1' /tmp/id_rsa|tr -d '\\n'"
+  shell: "cat /tmp/id_rsa|tr -d '\\n'"
+  register: key_file
+  delegate_to: localhost
+- set_fact:
+   crumb_content: "{{ crumb.content.split(':')[1] }}"
+
+- name: add credential using curl
+  command: 'curl -X POST \
+   -u admin:admin \
+   -H "Jenkins-Crumb: {{ crumb_content }}" \
+   -H "Cookie: {{ crumb.cookies_string }}" \
+   -H "content-type:application/xml" \
+   -d @/home/ec2-user/credentials.xml \
+   "http://localhost:8080/credentials/store/system/domain/_/createCredentials"'
+
 - name: Add credential to Node
   uri:
     url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/credentials/store/system/domain/_/createCredentials"
@@ -329,12 +346,12 @@
         "": "0",
         "credentials": {
         "scope": "GLOBAL",
-        "id": "jenkins_linux_slave1_auth",
+        "id": "{{ slave_linux_jenkins_cred_id }}",
         "username": "automation",
         "password": "",
         "privateKeySource": {
           "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource",
-          "privateKey": {{ key_file['content']|b64decode|replace('\n', '') }}
+          "privateKey": "{{ key_file.stdout }}"
         },
         "description": "Jenkins Linux Slave1 Authentication",
         "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey",
