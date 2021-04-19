@@ -275,6 +275,74 @@
         }
       }
 
+#- name: Adding jenkins slave user ssh key automation credentials
+#  uri:
+#    method: POST
+#    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/credentials/store/system/domain/_/createCredentials"
+#    user: admin
+#    password: admin
+    #validate_serts: no
+#    force_basic_auth: yes
+#    status_code: 200,302
+#    headers:
+#      Jenkins-Crumb: "{{ crumb.content.split(':')[1] }}"
+#      Cookie: "{{ crumb.cookies_string }}"
+#    body: |
+#      json={
+#        "": "0",
+#        "credentials": {
+#          "scope": "GLOBAL",
+#          "id": "{{ slave_linux_jenkins_cred_id }}",
+#          "username": "{{ slave_linux_jenkins_username }}"
+#          "privateKeySource": {
+#          "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource",
+#          "privateKey": "{{ lookup('file','{{private_key_file}}') | to_json }}"
+#            },
+#          "description": "Jenkins Linux Slave ssh key Authentication",
+#          "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey"
+#          }
+#      }
+
+- name: Read the ssh key file content
+  slurp:
+   src: /tmp/id_rsa
+  register: key_file
+
+- name: debug var
+  debug:
+   msg: "{{ key_file['content']|b64decode|replace('\n', '') }}"
+
+- name: Add credential to Node
+  uri:
+    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/credentials/store/system/domain/_/createCredentials"
+    user: admin
+    password: admin
+    method: POST
+    status_code: 302,200
+    body_format: form-urlencoded
+    force_basic_auth: true
+    headers:
+      Jenkins-Crumb: "{{ crumb.content.split(':')[1] }}"
+      Cookie: "{{ crumb.cookies_string }}"
+    body: |
+      json={
+        "": "0",
+        "credentials": {
+        "scope": "GLOBAL",
+        "id": "jenkins_linux_slave1_auth",
+        "username": "automation",
+        "password": "",
+        "privateKeySource": {
+          "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource",
+          "privateKey": "{{ key_file['content']|b64decode|replace('\n', '') }}"
+        },
+        "description": "Jenkins Linux Slave1 Authentication",
+        "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey",
+        "$class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey"
+        }
+      }
+
+
 - name: testing
   debug:
    msg: "{{ hostvars[groups['jenkins_primary'][0]]['ansible_eth0']['ipv4']['address'] }}"
