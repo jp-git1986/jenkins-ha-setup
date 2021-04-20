@@ -213,6 +213,10 @@
   #tags: 
   #- primary
 
+- name: Pausing playbook 45 secs for service availability
+  pause:
+   seconds: 45
+
 - name: Install Jenkins plugins using password
   jenkins_plugin:
     name: "{{ item.name | default(item) }}"
