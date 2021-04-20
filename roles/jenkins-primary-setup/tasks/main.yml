@@ -245,6 +245,7 @@
   pause:
    seconds: 30  
 
+
 - name: Downloading crumb for adding slave agent user
   uri:
 #    url: 'http://"{{ jenkins_hostname }}":"{{ jenkins_http_port }}""{{ jenkins_url_prefix }}"/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
@@ -258,6 +259,19 @@
 - name: debug crumb
   debug:
    msg: "{{ crumb.content.split(':')[1] }}"
+
+- name: Add SSH credentials to global credentials store
+  uri:
+    url: http://{{jenkins_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/scriptText
+    method: POST
+    body: "script={{lookup('template', 'templates/add-jenkins-cred.groovy.j2')|urlencode}}"
+    user: admin
+    password: admin
+    status_code: 200,302
+    force_basic_auth: yes
+    headers:
+      Jenkins-Crumb: "{{ crumb.content.split(':')[1] }}"
+      Cookie: "{{ crumb.cookies_string }}"
 
 #- name: Adding jenkins slave user automation credentials
 #  uri:
@@ -327,17 +341,17 @@
 #  register: key_file
 #  delegate_to: localhost
 
-- set_fact:
-   crumb_content: "{{ crumb.content.split(':')[1] }}"
+#- set_fact:
+#   crumb_content: "{{ crumb.content.split(':')[1] }}"
 
-- name: add credential using curl
-  command: 'curl -X POST \
-   -u admin:admin \
-   -H "Jenkins-Crumb: {{ crumb_content }}" \
-   -H "Cookie: {{ crumb.cookies_string }}" \
-   -H "content-type:application/xml" \
-   -d @/home/ec2-user/credentials.xml \
-   "http://localhost:8080/credentials/store/system/domain/_/createCredentials"'
+#- name: add credential using curl
+#  command: 'curl -X POST \
+#   -u admin:admin \
+#   -H "Jenkins-Crumb: {{ crumb_content }}" \
+#   -H "Cookie: {{ crumb.cookies_string }}" \
+#   -H "content-type:application/xml" \
+#   -d @/home/ec2-user/credentials.xml \
+#   "http://localhost:8080/credentials/store/system/domain/_/createCredentials"'
 
 #- name: Add credential to Node
 #  uri:
@@ -361,7 +375,7 @@
 #        "password": "",
 #        "privateKeySource": {
 #          "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource",
-#          "privateKeyFile": "/home/ec2-user/jenkins-ha-setup/id_rsa"
+#          "privateKeyFile": "{{ lookup('file', '/home/ec2-user/jenkins-ha-setup/test.pem')|replace('\n', '\\n') }}"
 #        },
 #        "description": "Jenkins Linux Slave1 Authentication",
 #        "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey",

@@ -59,3 +59,14 @@ slave_linux_jenkins_password: !vault |
           6132
 slave_linux_jenkins_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDASXuBDqYxOSM5TuFhfiGhQ4dQ6Em9+oBCB3t/IREjO4LJ0OiwSHtuhrbXm/6zI/Gra9iM17nm6hXS6vIU+D6wc3JPwQaTbG+AJdTmNHiac/W7EdBahUMEkvBnuQfrSGh66CP+YXXCuYPkSmzYPUNTd8itWHLIIuaUfqkt/Twn/8EDLOp/Eic+V1Xyx7LxePKSAxoUz+lrYB2ECFEEqvu9VA9GiD03Jcc0rABP1E6+velnnJaB8vbL3oowE2L6IAAj1D6CCAU/b1+SeHXB0ZrPNgxz/JkpiIXkiq+y84GSfk6erBUox3q2CtXxdQNhYrPD4HS1ZJHzvQHtNmBu60FKtxfkSw3IBWqFhOUPjuO60rEqGEniFmHFDk0M9ND5BoKtJG6WqYzys4dt2rvpCvZ9ANaQocBMF+qpsR7AnVftjut2rRGT7nQmnQqFWkF3vsqVI12Vl8NccKkP7f/BFJcTta8NbHy9PJ++l7n2B0CeblQTepk1veqSUGDN26y5NfM="
 #private_key_file: /home/ec2-user/.ssh/id_rsa
+ssh_credentials:
+  - name: Jenkins user on jenkins-master connecting to slave nodes
+    credentials_id:  "jenkins_slave_automation_cred"
+    ssh_key_escaped: "{{lookup('file', '/home/ec2-user/jenkins-ha-setup/id_rsa')|replace('\n', '\\n')}}"
+    username: "automation"
+password_credentials:
+  - name: imgbuild Openstack service user
+    credentials_id: "imgbuild_os_credentials"
+    username: "{{lookup('env', 'OS_USERNAME')}}"
+    password: "{{lookup('env', 'OS_PASSWORD')}}"
+
