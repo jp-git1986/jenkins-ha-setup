@@ -248,17 +248,17 @@
 
 - name: Downloading crumb for adding slave agent user
   uri:
-#    url: 'http://"{{ jenkins_hostname }}":"{{ jenkins_http_port }}""{{ jenkins_url_prefix }}"/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
-    url: 'http://localhost:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
+    url: http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)
+#    url: 'http://localhost:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
     user: "{{ jenkins_admin_username }}"
     password: "{{ jenkins_admin_password }}"
     force_basic_auth: yes
     return_content: yes
   register: crumb
 
-- name: debug crumb
-  debug:
-   msg: "{{ crumb.content.split(':')[1] }}"
+#- name: debug crumb
+#  debug:
+#   msg: "{{ crumb.content.split(':')[1] }}"
 
 - name: Add SSH credentials to global credentials store
   uri:

@@ -8,7 +8,7 @@
    key_ssh: "{{ lookup('file','/tmp/id_rsa') }}"
   roles:
 #  - { role: jenkins-nfs-vol-setup, when: jenkins_masters is defined }
-#  - { role: jenkins-primary-setup, when: jenkins_primary is defined }
+  - { role: jenkins-primary-setup, when: jenkins_primary is defined }
 #  - { role: jenkins-standby-setup, when: jenkins_standby is defined }
 #  - { role: jenkins-opc-setup, when: jenkins_opc is defined }
-  - { role: jenkins-slave-setup, when: jenkins_slave is defined }
+#  - { role: jenkins-slave-setup, when: jenkins_slave is defined }
