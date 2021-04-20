@@ -63,6 +63,11 @@
     service: 
      name: cloudbees-core-cm
      state: restarted
+
+  - name: Pausing playbook 60 secs for service availability
+    pause:
+     seconds: 60 
+
   - name: Wait for Jenkins to start up before proceeding.
     uri:
       url: "http://{{ jenkins_opc_hostname }}:{{ jenkins_opc_port }}"
@@ -100,10 +105,16 @@
       group: "{{ jenkins_opc_groupname }}"
       mode: 0775
     register: jenkins_users_config 
+
   - name: Restarting JOC after changes in configuration
     service:
      name: cloudbees-core-cm
      state: restarted
+
+  - name: Pausing playbook 60 secs for service availability
+    pause:
+     seconds: 60
+
   - name: Wait for Jenkins to start up before proceeding.
     uri:
       url: "http://{{ jenkins_opc_hostname }}:{{ jenkins_opc_port }}"

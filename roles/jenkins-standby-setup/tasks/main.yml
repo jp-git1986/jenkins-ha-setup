@@ -85,6 +85,10 @@
   service:
    name: jenkins
    state: restarted
+
+- name: Pausing playbook 30 secs for service vaialability
+  pause:
+   seconds: 30 
    
 
 - name: Wait for Jenkins to start up before proceeding.

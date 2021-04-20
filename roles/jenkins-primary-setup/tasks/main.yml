@@ -94,6 +94,10 @@
   service:
    name: jenkins
    state: restarted
+
+- name: Pausing playbook 30 secs for service availability
+  pause:
+   seconds: 30
    
 
 - name: Wait for Jenkins to start up before proceeding.
@@ -209,7 +213,7 @@
   #tags: 
   #- primary
 
-- name: Install Jenkins plugins using password.
+- name: Install Jenkins plugins using password
   jenkins_plugin:
     name: "{{ item.name | default(item) }}"
     version: "{{ item.version | default(omit) }}"
@@ -221,6 +225,7 @@
     updates_expiration: "{{ jenkins_plugin_updates_expiration }}"
     updates_url: "{{ jenkins_updates_url }}"
     url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+    use_proxy: false
     with_dependencies: "{{ jenkins_plugins_install_dependencies }}"
   with_items: "{{ jenkins_plugins }}"
   when: jenkins_admin_password | default(false)
@@ -250,30 +255,30 @@
   debug:
    msg: "{{ crumb.content.split(':')[1] }}"
 
-- name: Adding jenkins slave user automation credentials
-  uri:
-    method: POST
-    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/credentials/store/system/domain/_/createCredentials"
-    user: admin
-    password: admin
-    #validate_serts: no
-    force_basic_auth: yes
-    status_code: 200,302
-    headers:
-      Jenkins-Crumb: "{{ crumb.content.split(':')[1] }}"
-      Cookie: "{{ crumb.cookies_string }}"
-    body: |
-      json={
-        "": "0",
-        "credentials": {
-          "scope": "GLOBAL",
-          "id": "{{ slave_linux_jenkins_cred_id }}",
-          "username": "{{ slave_linux_jenkins_username }}",
-          "password": "{{ slave_linux_jenkins_public_key|urlencode }}",
-          "description": "jenkins slave agent credentials",
-          "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
-        }
-      }
+#- name: Adding jenkins slave user automation credentials
+#  uri:
+#    method: POST
+#    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/credentials/store/system/domain/_/createCredentials"
+#    user: admin
+#    password: admin
+#    #validate_serts: no
+#    force_basic_auth: yes
+#    status_code: 200,302
+#    headers:
+#      Jenkins-Crumb: "{{ crumb.content.split(':')[1] }}"
+#      Cookie: "{{ crumb.cookies_string }}"
+#    body: |
+#      json={
+#        "": "0",
+#        "credentials": {
+#          "scope": "GLOBAL",
+#          "id": "{{ slave_linux_jenkins_cred_id }}",
+#          "username": "{{ slave_linux_jenkins_username }}",
+#          "password": "{{ slave_linux_jenkins_public_key|urlencode }}",
+#          "description": "jenkins slave agent credentials",
+#          "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl"
+#        }
+#      }
 
 #- name: Adding jenkins slave user ssh key automation credentials
 #  uri:
@@ -303,20 +308,21 @@
 #          }
 #      }
 
-- name: Read the ssh key file content
-  slurp:
-   src: /tmp/id_rsa
-  register: key_file
+#- name: Read the ssh key file content
+#  slurp:
+#   src: /tmp/id_rsa
+#  register: key_file
 
-- name: debug var
-  debug:
-   msg: "{{ key_file['content']|b64decode|replace('\n', '') }}"
+#- name: debug var
+#  debug:
+#   msg: "{{ key_file['content']|b64decode|replace('\n', '') }}"
 
-- name: register key in a file
-  #shell: "awk -v ORS='\\n' '1' /tmp/id_rsa|tr -d '\\n'"
-  shell: "cat /tmp/id_rsa|tr -d '\\n'"
-  register: key_file
-  delegate_to: localhost
+#- name: register key in a file
+#  #shell: "awk -v ORS='\\n' '1' /tmp/id_rsa|tr -d '\\n'"
+#  shell: "cat /tmp/id_rsa|tr -d '\\n'"
+#  register: key_file
+#  delegate_to: localhost
+
 - set_fact:
    crumb_content: "{{ crumb.content.split(':')[1] }}"
 
@@ -329,35 +335,35 @@
    -d @/home/ec2-user/credentials.xml \
    "http://localhost:8080/credentials/store/system/domain/_/createCredentials"'
 
-- name: Add credential to Node
-  uri:
-    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/credentials/store/system/domain/_/createCredentials"
-    user: admin
-    password: admin
-    method: POST
-    status_code: 302,200
-    body_format: form-urlencoded
-    force_basic_auth: true
-    headers:
-      Jenkins-Crumb: "{{ crumb.content.split(':')[1] }}"
-      Cookie: "{{ crumb.cookies_string }}"
-    body: |
-      json={
-        "": "0",
-        "credentials": {
-        "scope": "GLOBAL",
-        "id": "{{ slave_linux_jenkins_cred_id }}",
-        "username": "automation",
-        "password": "",
-        "privateKeySource": {
-          "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource",
-          "privateKey": "{{ key_file.stdout }}"
-        },
-        "description": "Jenkins Linux Slave1 Authentication",
-        "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey",
-        "$class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey"
-        }
-      }
+#- name: Add credential to Node
+#  uri:
+#    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/credentials/store/system/domain/_/createCredentials"
+#    user: admin
+#    password: admin
+#    method: POST
+#    status_code: 302,200
+#    body_format: form-urlencoded
+#    force_basic_auth: true
+#    headers:
+#      Jenkins-Crumb: "{{ crumb.content.split(':')[1] }}"
+#      Cookie: "{{ crumb.cookies_string }}"
+#    body: |
+#      json={
+#        "": "0",
+#        "credentials": {
+#        "scope": "GLOBAL",
+#        "id": "{{ slave_linux_jenkins_cred_id }}",
+#        "username": "automation",
+#        "password": "",
+#        "privateKeySource": {
+#          "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey$DirectEntryPrivateKeySource",
+#          "privateKeyFile": "/home/ec2-user/jenkins-ha-setup/id_rsa"
+#        },
+#        "description": "Jenkins Linux Slave1 Authentication",
+#        "stapler-class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey",
+#        "$class": "com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey"
+#        }
+#      }
 
 
 - name: testing
