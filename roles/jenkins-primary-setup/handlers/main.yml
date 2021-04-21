@@ -1,4 +1,4 @@
 ---
 # handlers file for jenkins-ha-setup
-- name: restart jenkins
-  service: name=jenkins state=restarted
+- name: restart jenkins cm
+  service: name=cloudbees-core-cm state=restarted

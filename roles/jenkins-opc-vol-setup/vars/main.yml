@@ -4,4 +4,4 @@ aws_profile: default
 aws_region: us-east-2
 nfs_package: nfs-utils # nfs-utils on RHEL/CentOS/Amazon Linux
 efs_file_system_id: fs-aaed02d1
-efs_mount_dir: /var/lib/cloudbees-core-cm
+efs_mount_dir: /var/lib/cloudbees-core-oc

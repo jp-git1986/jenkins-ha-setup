@@ -1,17 +1,17 @@
     - name: Ensure NFS is installed.
       package: "name={{ nfs_package }} state=installed"
 
-    - name: Creating jenkins home directory
-      file:
-       path: /var/lib/cloudbees-core-oc
-       state: directory
+    #- name: Creating jenkins home directory
+    #  file:
+    #   path: /var/lib/cloudbees-core-oc
+    #   state: directory
 
 
-    - name: Ensure mount directory exists.
-      file:
-        path: "{{ efs_mount_dir }}"
-        state: directory
-        mode: 0755
+    #- name: Ensure mount directory exists.
+    #  file:
+    #    path: "{{ efs_mount_dir }}"
+    #    state: directory
+    #    mode: 0755
 
     - name: Get current AZ from AWS.
       uri:
@@ -21,7 +21,7 @@
 
     - name: Ensure EFS volume is mounted.
       mount:
-        name: "{{ efs_mount_dir }}"
+        name: "/mnt/{{ efs_mount_dir }}"
         src: "{{ aws_current_az.content }}.{{ efs_file_system_id }}.efs.{{ aws_region }}.amazonaws.com:/"
         fstype: nfs
         opts: nfsvers=4.1

@@ -1,20 +1,20 @@
-3.16.187.104 ansible_host=ec2-3-16-187-104.us-east-2.compute.amazonaws.com ansible_user=ec2-user 
+13.59.241.116 ansible_host=ec2-13-59-241-116.us-east-2.compute.amazonaws.com ansible_user=ec2-user 
 
-18.188.197.44 ansible_host=ec2-18-188-197-44.us-east-2.compute.amazonaws.com ansible_user=ec2-user
+3.142.153.249 ansible_host=ec2-3-142-153-249.us-east-2.compute.amazonaws.com ansible_user=ec2-user
 
 18.191.78.231 ansible_host=ec2-18-191-78-231.us-east-2.compute.amazonaws.com ansible_user=ec2-user
 
 3.142.153.71 ansible_host=ec2-3-142-153-71.us-east-2.compute.amazonaws.com ansible_user=ec2-user
 
 [jenkins_primary]
-3.16.187.104
+3.142.153.249
 
-[jenkins_standby]
-18.188.197.44
+#[jenkins_standby]
+#3.142.153.249
 
 [jenkins_masters]
-3.16.187.104
-18.188.197.44
+13.59.241.116
+3.142.153.249
 
 [jenkins_opc]
 18.191.78.231

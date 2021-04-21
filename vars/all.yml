@@ -4,24 +4,26 @@
 jenkins_cm_repo_url: https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees-core-cm.repo
 jenkins_cm_repo_key_url: https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees.com.key
 jenkins_pkg_url: https://pkg.jenkins.io/redhat
-jenkins_init_file: /etc/sysconfig/jenkins
+jenkins_init_file: /etc/sysconfig/cloudbees-core-cm
 jenkins_http_port_param: JENKINS_PORT
+jenkins_https_port_param: JENKINS_HTTPS_PORT
 jenkins_java_opt_var: JENKINS_JAVA_OPTIONS
 dependent_pkgs: [ curl,wget,java-1.8.0-openjdk-devel ]
 #dependent_pkgs: [ curl,wget,java-1.8.0-openjdk-devel,python3 ]
 #dependent_pkgs: curl
 jenkins_connection_delay: 5
 jenkins_connection_retries: 60
-jenkins_cm_home: /var/lib/cloudbees-core-cm
+jenkins_cm_home: /mnt/var/lib/cloudbees-core-cm
 jenkins_cm_hostname: localhost
 jenkins_http_port: 8080
+jenkins_https_port: 443
 jenkins_jar_location: /opt/jenkins-cli.jar
 jenkins_url_prefix: ""
 jenkins_java_options: "-Djenkins.install.runSetupWizard=false -Xmx2048m -Djava.awt.headless=true -Dhudson.DNSMultiCast.disabled=true -Dhudson.udp=$UDP_PORT"
 
 jenkins_init_changes:
   - option: "JENKINS_ARGS"
-    value: "--prefix={{ jenkins_url_prefix }}"
+    value: "--prefix={{ jenkins_url_prefix }} -Dhudson.TcpSlaveAgentListener.hostName={{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}} --webroot=/software/war --pluginroot=/software/plugins"
   - option: "{{ jenkins_java_opt_var }}"
     value: "{{ jenkins_java_options }}"
 # Plugin list can use the plugin name, or a name/version dict.
@@ -34,7 +36,8 @@ jenkins_plugins_state: present
 jenkins_plugin_updates_expiration: 86400
 jenkins_plugin_timeout: 30
 jenkins_plugins_install_dependencies: true
-jenkins_updates_url: "https://updates.jenkins.io"
+#jenkins_updates_url: "https://updates.jenkins.io"
+jenkins_updates_url: "https://jenkins-updates.cloudbees.com/"
 
 jenkins_admin_username: admin
 jenkins_admin_password: !vault |

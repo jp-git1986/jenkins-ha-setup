@@ -37,21 +37,21 @@
   #  debug:
    #  msg="{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
 
-  - name: Changing permissions on software directories
-    file:
-     path: "{{item}}"
-     state: directory
-     mode: 0777
-    with_items:
-    - /software/war
-    - /software/plugins
-    - "{{ jenkins_opc_home }}"
+ # - name: Changing permissions on software directories
+ #   file:
+ #    path: "{{item}}"
+ #    state: directory
+ #    mode: 0777
+ #   with_items:
+ #   - /software/war
+ #   - /software/plugins
+ #   - "{{ jenkins_opc_home }}"
 
-  - name: Changing the Java options of cloud bees core cm file
-    lineinfile:
-     path: "{{ jenkins_opc_init_file }}"
-     regexp: '^JENKINS_ARGS=""'
-     line: JENKINS_ARGS="-Dhudson.TcpSlaveAgentListener.hostName={{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}} --webroot=/software/war --pluginroot=/software/plugins"
+  #- name: Changing the Java options of cloud bees core cm file
+  #  lineinfile:
+  #   path: "{{ jenkins_opc_init_file }}"
+  #   regexp: '^JENKINS_ARGS=""'
+  #   line: JENKINS_ARGS="-Dhudson.TcpSlaveAgentListener.hostName={{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}} --webroot=/software/war --pluginroot=/software/plugins"
 
   #- name: Changing JOC Default port from 8080 to 8888
   #  lineinfile:
