@@ -7,7 +7,8 @@ jenkins_pkg_url: https://pkg.jenkins.io/redhat
 jenkins_init_file: /etc/sysconfig/jenkins
 jenkins_http_port_param: JENKINS_PORT
 jenkins_java_opt_var: JENKINS_JAVA_OPTIONS
-dependent_pkgs: [ curl,wget,java-1.8.0-openjdk-devel,python3 ]
+dependent_pkgs: [ curl,wget,java-1.8.0-openjdk-devel ]
+#dependent_pkgs: [ curl,wget,java-1.8.0-openjdk-devel,python3 ]
 #dependent_pkgs: curl
 jenkins_connection_delay: 5
 jenkins_connection_retries: 60
@@ -24,7 +25,7 @@ jenkins_init_changes:
   - option: "{{ jenkins_java_opt_var }}"
     value: "{{ jenkins_java_options }}"
 # Plugin list can use the plugin name, or a name/version dict.
-jenkins_plugins: [blueocean,timestamper]
+jenkins_plugins: [blueocean,timestamper,ssh-slaves,credentials,ssh-credentials,parameterized-trigger,git,github,script-security,workflow-step-api,workflow-scm-step]
  # - blueocean
 #  - name: influxdb
 #    version: "1.12.1"

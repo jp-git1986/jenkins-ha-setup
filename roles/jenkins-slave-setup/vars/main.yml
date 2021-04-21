@@ -10,6 +10,6 @@ slave_linux_jenkins_password: !vault |
           3030326539656339650a663062613766623339326535636434313035616234623763306138666339
           6132
 slave_linux_jenkins_key: "AAAAB3NzaC1yc2EAAAADAQABAAABgQC8jhHaieyIOQ3dkpLjqQlwwMwq8JpKFBXqCjpx13Da3q/JFroSmntOL8uJ8rh62c19wPUcDQY+aqSHtXj81fXMy9SV+gECpyRPeberdBrw1OE7dHRURX0/hD82i3dDavZDIjI2cnh0QDIjyZPus/Inxtdq0/6XT97FkVEYej3YxinzJ17tY+OIK6kXl+7SpkQtwsqj5MouVQdPZR8/AEFzj+/gBEcwjHX3zUruXjuujbhrsDVNT2ZsPJhqKVAlul2CSy1yzaAnqa75kLXe7PrCrnprjCg8X4WrxsKH5MfvnjmJMCYwV/hOGwDxJq/Jxw0bFKGK4mWcdiIPXdlQ0BsabbXPSnlcrOfv9YNc97e6FyRGT7JQSUzLCN4aLABccDa+ZU/iaj3plkOTO9mXI9erCiCIGRZHZ6HarMpDxlnic2+mBfpxO6WiUJVaKgmWLWsxOzSXqaGV1GNVnNirGV/dnUTm7Xq1/TaTJkCbcNXvPwrCUb/Ode5kue59/PcYE2k="
-slave_agent_name: jenkins_worker
+slave_agent_name: jenkins-slave-int-01
 slave_linux_user_group: automation
 slave_linux_home: "/opt/jenkins_slave_home"

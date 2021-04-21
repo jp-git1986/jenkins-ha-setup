@@ -18,15 +18,15 @@
     state: present
   become: true
 
-#- name: Create jenkins user with root privileges
-#  user:
-#    name: '{{ slave_linux_jenkins_username }}'
-#    group: '{{ slave_linux_jenkins_username }}'
-#    password: '{{ slave_linux_jenkins_password }}'
-#    state: present
-#    #append: true
-#    createhome: true
-#  become: true
+- name: Create jenkins user with root privileges
+  user:
+    name: '{{ slave_linux_jenkins_username }}'
+    group: '{{ slave_linux_jenkins_username }}'
+    password: '{{ slave_linux_jenkins_password }}'
+    state: present
+#    append: true
+    createhome: true
+  become: true
 
 - name: Set authorized key
   authorized_key:
