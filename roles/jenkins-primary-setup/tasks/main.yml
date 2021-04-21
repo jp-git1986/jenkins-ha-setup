@@ -14,14 +14,14 @@
     state: present
   with_items: "{{ dependent_pkgs }}"
     
-- name: Ensure Jenkins repo is installed.
+- name: Ensure Jenkins cm repo is installed.
   get_url:
-    url: "{{ jenkins_repo_url }}"
-    dest: /etc/yum.repos.d/jenkins.repo  
-- name: Add Jenkins repo GPG key.
+    url: "{{ jenkins_cm_repo_url }}"
+    dest: /etc/yum.repos.d/cloudbees-core-cm.repo 
+- name: Add Jenkins cm repo GPG key.
   rpm_key:
     state: present
-    key: "{{ jenkins_repo_key_url }}"
+    key: "{{ jenkins_cm_repo_key_url }}"
 - name: Update system
   dnf:
    name: "*"
@@ -29,12 +29,12 @@
     
 - name: Install jenkins stable latest version
   dnf:
-   name: jenkins
+   name: cloudbees-core-cm
    state: latest
 
 - name: Ensure Jenkins is started and runs on startup.
   service: 
-   name: jenkins 
+   name: cloudbees-core-cm 
    state: started 
    enabled: yes
   
@@ -55,9 +55,9 @@
   
 - name: Ensure jenkins_home {{ jenkins_home }} exists.
   file:
-    path: "{{ jenkins_home }}"
+    path: "{{ jenkins_cm_home }}"
     state: directory
-    owner: "{{ jenkins_username }}"
+    owner: "{{ jenkins_cm_username }}"
     #group: " {{ jenkins_groupname }}"
     mode: u+rwx
     follow: true
@@ -67,7 +67,7 @@
   lineinfile:
     dest: "{{ jenkins_init_file }}"
     regexp: '^JENKINS_HOME=.*'
-    line: 'JENKINS_HOME={{ jenkins_home }}'
+    line: 'JENKINS_HOME={{ jenkins_cm_home }}'
   register: jenkins_home_config
   
 - name: Set HTTP port in Jenkins config.
@@ -92,7 +92,7 @@
    
 - name: restart jenkins after java options added
   service:
-   name: jenkins
+   name: cloudbees-core-cm
    state: restarted
 
 - name: Pausing playbook 30 secs for service availability
@@ -102,7 +102,7 @@
 
 - name: Wait for Jenkins to start up before proceeding.
   uri:
-    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+    url: "http://{{ jenkins_cm_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
     method: GET
     return_content: "yes"
     timeout: 5
@@ -128,7 +128,7 @@
 
 - name: Remove Jenkins security init scripts after first startup.
   file:
-    path: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
+    path: "{{ jenkins_cm_home }}/init.groovy.d/basic-security.groovy"
     state: absent
   ignore_errors: true
 #  tags: 
@@ -136,7 +136,7 @@
 
 - name: Creating jenkins init groovy script folder
   file:
-   path: "{{ jenkins_home }}/init.groovy.d"
+   path: "{{ jenkins_cm_home }}/init.groovy.d"
    state: directory
    owner: jenkins
    group: jenkins
@@ -147,9 +147,9 @@
 - name: configure default users
   template:
     src: basic-security.groovy.j2
-    dest: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
+    dest: "{{ jenkins_cm_home }}/init.groovy.d/basic-security.groovy"
     owner: "{{ jenkins_username }}"
-    group: "{{ jenkins_groupname }}"
+    group: "{{ jenkins_cm_groupname }}"
     mode: 0775
   register: jenkins_users_config
   #tags: 
@@ -157,7 +157,7 @@
   
 - name: restart jenkins
   service: 
-   name: jenkins 
+   name: cloudbees-core-cm 
    state: restarted
   #tags: 
   #- primary-standby
@@ -184,19 +184,19 @@
 # Update Jenkins so that plugin updates don't fail.
 - name: Create Jenkins updates directory.
   file:
-    path: "{{ jenkins_home }}/updates"
+    path: "{{ jenkins_cm_home }}/updates"
     state: directory
-    owner: "{{ jenkins_username }}"
-    group: "{{ jenkins_groupname }}"
+    owner: "{{ jenkins_cm_username }}"
+    group: "{{ jenkins_cm_groupname }}"
   #tags: 
   #- primary-standby
 
 - name: Download current plugin updates from Jenkins update site.
   get_url:
     url: "{{ jenkins_updates_url }}/update-center.json"
-    dest: "{{ jenkins_home }}/updates/default.json"
-    owner: "{{ jenkins_username }}"
-    group: "{{ jenkins_groupname }}"
+    dest: "{{ jenkins_cm_home }}/updates/default.json"
+    owner: "{{ jenkins_cm_username }}"
+    group: "{{ jenkins_cm_groupname }}"
     mode: 0440
   changed_when: false
   register: get_result
@@ -208,7 +208,7 @@
 
 - name: Remove first and last line from json file.
   replace:
-    path: "{{ jenkins_home }}/updates/default.json"
+    path: "{{ jenkins_cm_home }}/updates/default.json"
     regexp: "1d;$d"
   #tags: 
   #- primary
@@ -221,14 +221,14 @@
   jenkins_plugin:
     name: "{{ item.name | default(item) }}"
     version: "{{ item.version | default(omit) }}"
-    jenkins_home: "{{ jenkins_home }}"
+    jenkins_home: "{{ jenkins_cm_home }}"
     url_username: "{{ jenkins_admin_username }}"
     url_password: "{{ jenkins_admin_password }}"
     state: "{{ 'present' if item.version is defined else jenkins_plugins_state }}"
     timeout: "{{ jenkins_plugin_timeout }}"
     updates_expiration: "{{ jenkins_plugin_updates_expiration }}"
     updates_url: "{{ jenkins_updates_url }}"
-    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+    url: "http://{{ jenkins_cm_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
     use_proxy: false
     with_dependencies: "{{ jenkins_plugins_install_dependencies }}"
   with_items: "{{ jenkins_plugins }}"
@@ -248,7 +248,7 @@
 
 - name: Downloading crumb for adding slave agent user
   uri:
-    url: http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)
+    url: http://{{ jenkins_cm_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)
 #    url: 'http://localhost:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
     user: "{{ jenkins_admin_username }}"
     password: "{{ jenkins_admin_password }}"
@@ -262,7 +262,7 @@
 
 - name: Add SSH credentials to global credentials store
   uri:
-    url: http://{{jenkins_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/scriptText
+    url: http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/scriptText
     method: POST
     body: "script={{lookup('template', 'templates/add-jenkins-cred.groovy.j2')|urlencode}}"
     user: admin

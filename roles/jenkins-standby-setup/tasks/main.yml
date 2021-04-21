@@ -7,12 +7,12 @@
     
 - name: Ensure Jenkins repo is installed.
   get_url:
-    url: "{{ jenkins_repo_url }}"
-    dest: /etc/yum.repos.d/jenkins.repo  
+    url: "{{ jenkins_cm_repo_url }}"
+    dest: /etc/yum.repos.d/cloudbees-core-cm.repo  
 - name: Add Jenkins repo GPG key.
   rpm_key:
     state: present
-    key: "{{ jenkins_repo_key_url }}"
+    key: "{{ jenkins_cm_repo_key_url }}"
 - name: Update system
   dnf:
    name: "*"
@@ -20,12 +20,12 @@
     
 - name: Install jenkins stable latest version
   dnf:
-   name: jenkins
+   name: cloudbees-core-cm
    state: latest
 
 - name: Ensure Jenkins is started and runs on startup.
   service: 
-   name: jenkins 
+   name: cloudbees-core-cm 
    state: started 
    enabled: yes
   
@@ -44,11 +44,11 @@
   with_items: "{{ jenkins_init_changes }}"
   register: jenkins_init_prefix
   
-- name: Ensure jenkins_home {{ jenkins_home }} exists.
+- name: Ensure jenkins cm home {{ jenkins_cm_home }} exists.
   file:
-    path: "{{ jenkins_home }}"
+    path: "{{ jenkins_cm_home }}"
     state: directory
-    owner: "{{ jenkins_username }}"
+    owner: "{{ jenkins_cm_username }}"
     #group: " {{ jenkins_groupname }}"
     mode: u+rwx
     follow: true
@@ -83,7 +83,7 @@
 
 - name: restart jenkins after java options added
   service:
-   name: jenkins
+   name: cloudbees-core-cm
    state: restarted
 
 - name: Pausing playbook 30 secs for service vaialability
@@ -93,7 +93,7 @@
 
 - name: Wait for Jenkins to start up before proceeding.
   uri:
-    url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+    url: "http://{{ jenkins_cm_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
     method: GET
     return_content: "yes"
     timeout: 5

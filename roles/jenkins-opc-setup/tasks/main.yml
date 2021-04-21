@@ -15,7 +15,7 @@
   - name: Adding ops center repo
     get_url:
      url: "{{ jenkins_opc_repo_url }}"
-     dest: "/etc/yum.repos.d/cloudbees-core-cm.repo"
+     dest: "/etc/yum.repos.d/cloudbees-core-oc.repo"
   - name: Adding ops center rpm repo key
     rpm_key:
      state: present
@@ -26,11 +26,11 @@
      state: latest
   - name: Installing cloudbees core cm package
     dnf:
-     name: cloudbees-core-cm
+     name: cloudbees-core-oc
      state: latest
   - name: enable cloudbees core cm on boot
     service:
-     name: cloudbees-core-cm
+     name: cloudbees-core-oc
      state: started
      enabled: yes
   #- name: check_task
@@ -53,15 +53,15 @@
      regexp: '^JENKINS_ARGS=""'
      line: JENKINS_ARGS="-Dhudson.TcpSlaveAgentListener.hostName={{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}} --webroot=/software/war --pluginroot=/software/plugins"
 
-  - name: Changing JOC Default port from 8080 to 8888
-    lineinfile:
-     regexp: '^JENKINS_PORT="8080"'
-     line: JENKINS_PORT="{{ jenkins_opc_port }}"
-     path: "{{ jenkins_opc_init_file }}"
+  #- name: Changing JOC Default port from 8080 to 8888
+  #  lineinfile:
+  #   regexp: '^JENKINS_PORT="8080"'
+  #   line: JENKINS_PORT="{{ jenkins_opc_port }}"
+  #   path: "{{ jenkins_opc_init_file }}"
 
   - name: Restarting JOC after changes in configuration
     service: 
-     name: cloudbees-core-cm
+     name: cloudbees-core-oc
      state: restarted
 
   - name: Pausing playbook 60 secs for service availability
@@ -108,7 +108,7 @@
 
   - name: Restarting JOC after changes in configuration
     service:
-     name: cloudbees-core-cm
+     name: cloudbees-core-oc
      state: restarted
 
   - name: Pausing playbook 60 secs for service availability

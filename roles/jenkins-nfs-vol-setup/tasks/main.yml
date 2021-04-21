@@ -3,7 +3,7 @@
 
     - name: Creating jenkins home directory
       file:
-       path: /var/lib/jenkins
+       path: /var/lib/cloudbees-core-cm
        state: directory
 
 

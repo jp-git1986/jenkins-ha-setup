@@ -1,8 +1,8 @@
 ---
 #jenkins_repo_url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
 #jenkins_repo_key_url: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
-jenkins_repo_url: https://downloads.cloudbees.com/cje/rolling/rpm/jenkins.repo
-jenkins_repo_key_url: https://downloads.cloudbees.com/jenkins-enterprise/rolling/rpm/cloudbees.com.key
+jenkins_cm_repo_url: https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees-core-cm.repo
+jenkins_cm_repo_key_url: https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/rpm/cloudbees.com.key
 jenkins_pkg_url: https://pkg.jenkins.io/redhat
 jenkins_init_file: /etc/sysconfig/jenkins
 jenkins_http_port_param: JENKINS_PORT
@@ -12,8 +12,8 @@ dependent_pkgs: [ curl,wget,java-1.8.0-openjdk-devel ]
 #dependent_pkgs: curl
 jenkins_connection_delay: 5
 jenkins_connection_retries: 60
-jenkins_home: /var/lib/jenkins
-jenkins_hostname: localhost
+jenkins_cm_home: /var/lib/cloudbees-core-cm
+jenkins_cm_hostname: localhost
 jenkins_http_port: 8080
 jenkins_jar_location: /opt/jenkins-cli.jar
 jenkins_url_prefix: ""
@@ -47,8 +47,8 @@ jenkins_admin_password: !vault |
 #jenkins_admin_password: admin
 jenkins_admin_password_file: ""
 
-jenkins_username: jenkins
-jenkins_groupname: jenkins
+jenkins_cm_username: cloudbees-core-cm
+jenkins_cm_groupname: cloudbees-core-cm
 slave_linux_jenkins_cred_id: jenkins_slave_automation_cred
 slave_linux_jenkins_username: automation
 slave_linux_jenkins_password: !vault |
