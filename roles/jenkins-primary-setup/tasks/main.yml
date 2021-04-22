@@ -332,7 +332,7 @@
 #  debug:
 #   msg: "{{ crumb.content.split(':')[1] }}"
 
-- name: Add SSH credentials to global credentials store
+- name: Add SSH credentials for jenkins slaves to global credentials store
   uri:
     url: http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/scriptText
     method: POST
