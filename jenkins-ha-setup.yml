@@ -10,4 +10,5 @@
 #  - { role: jenkins-standby-setup, when: jenkins_standby is defined }
 #   - { role: jenkins-opc-vol-setup, when: jenkins_opc is defined }
 #  - { role: jenkins-opc-setup, when: jenkins_opc is defined }
-  - { role: jenkins-slave-setup, when: jenkins_slave is defined }
+#  - { role: jenkins-slave-setup, when: jenkins_slave is defined }
+   - { role: jenkins-jobs-setup, when: jenkins_primary is defined }

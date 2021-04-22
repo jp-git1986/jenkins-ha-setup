@@ -1,0 +1,67 @@
+---
+- name: install pip
+  dnf:
+   name: python3-pip
+   state: latest
+- name: Install python-jenkins module
+  pip:
+   name: python-jenkins
+   state: latest
+
+- name: Downloading crumb for adding slave agent user
+  uri:
+    url: http://{{ jenkins_cm_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)
+    user: "{{ jenkins_admin_username }}"
+    password: "{{ jenkins_admin_password }}"
+    force_basic_auth: yes
+    return_content: yes
+  register: crumb
+
+#- name: add credential using curl
+#  command: 'curl -X POST \
+#   -u admin:admin \
+#   -H "Jenkins-Crumb: {{ crumb_content }}" \
+#   -H "Cookie: {{ crumb.cookies_string }}" \
+#   -H "content-type:application/xml" \
+#   "http://localhost:8080/credentials/store/system/domain/_/createCredentials"'
+
+#- name: Creating jenkins folders using jenkins rest api
+#  uri:
+#    url: 'http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/createItem?name=jsclient&mode=com.cloudbees.hudson.plugins.folder.Folder&from=&json={"name":"FolderName","mode":"com.cloudbees.hudson.plugins.folder.Folder","from":"","Submit":"OK"}&Submit=OK'
+#    method: POST
+#    user: "{{ jenkins_admin_username }}"
+#    password: "{ jenkins_admin_password }}"
+#    status_code: 200,302
+#    force_basic_auth: yes
+#    headers:
+#      Jenkins-Crumb: "{{ crumb.content.split(':')[1] }}"
+#      Cookie: "{{ crumb.cookies_string }}"
+
+- name: registering crumb content
+  set_fact:
+   crumb_content: "{{ crumb.content.split(':')[1] }}"
+
+- name: Creating jenkins folders using curl
+  command: 'curl -X POST \
+   -u "{{ jenkins_admin_username }}: {{ jenkins_admin_password }}" \
+   -H "Jenkins-Crumb: {{ crumb_content }}" \
+   -H "Cookie: {{ crumb.cookies_string }}" \
+   -H "Content-Type:application/x-www-form-urlencoded" \
+    http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/createItem?name=JSCLIENT&mode=com.cloudbees.hudson.plugins.folder.Folder&Submit=OK'
+
+#- name: Creating job for jsclient application
+#  jenkins_job:
+#   config: "{{ lookup('file', 'templates/jsclient-job.xml') }}"
+#   name: jsclient
+#   user: "{{jenkins_admin_username}}"
+#   password: "{{jenkins_admin_password}}"
+#   url: "http://{{ hostvars[groups['jenkins_primary'][0]]['ansible_eth0']['ipv4']['address'] }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/job/JSCLIENT/"
+
+- name: Creating jenkins jobs inside the folder
+  command: 'curl -X POST \
+   -u "{{ jenkins_admin_username }}:{{ jenkins_admin_password }}" \
+   -H "Jenkins-Crumb: {{ crumb_content }}" \
+   -H "Cookie: {{ crumb.cookies_string }}" \
+   -H "Content-Type:text/xml" \
+   --data-binary @/home/ec2-user/jsclient-job.xml \
+    http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/job/JSCLIENT/createItem?name=jsclient'

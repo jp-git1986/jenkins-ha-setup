@@ -1,0 +1,121 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.40">
+  <actions>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobAction plugin="pipeline-model-definition@1.7.2"/>
+    <org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction plugin="pipeline-model-definition@1.7.2">
+      <jobProperties/>
+      <triggers/>
+      <parameters>
+        <string>app_version</string>
+        <string>host</string>
+      </parameters>
+      <options/>
+    </org.jenkinsci.plugins.pipeline.modeldefinition.actions.DeclarativeJobPropertyTrackerAction>
+  </actions>
+  <description>jsclient</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>app_version</name>
+          <description>Enter app version</description>
+          <defaultValue>4ec9edf-1.x86_64</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>host</name>
+          <description>Select a host to be delpoyed</description>
+          <choices>
+            <string>10.80.66.244</string>
+            <string>10.80.67.43</string>
+            <string>10.80.67.190</string>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.83">
+    <script>pipeline {
+  agent
+        {
+                node
+                {
+                        label &apos;greenbox_deployment_dmz&apos;
+                }
+        }
+
+    environment{
+        ENV_CONFIG_ID = &apos;jenkins-prod-vars-ecom-us&apos;
+        ENV_CONFIG_FILE = &apos;env.groovy&apos;
+        ENV_PLAYBOOK_NAME = &apos;jsclient.tar.gz&apos;
+    }
+    parameters {
+        string (
+                defaultValue: &apos;4ec9edf-1.x86_64&apos;,
+                description: &apos;Enter app version&apos;,
+                name: &apos;app_version&apos;
+        )
+        choice (
+        choices: [&apos;10.80.66.244&apos;,&apos;10.80.67.43&apos;,&apos;10.80.67.190&apos;],
+        description: &apos;Select a host to be delpoyed&apos;,
+        name: &apos;host&apos;
+        )
+    }
+
+    stages {
+        stage(&apos;Load Env Variables&apos;){
+            steps{
+                script{
+                    configFileProvider([configFile(fileId: &quot;${ENV_CONFIG_ID}&quot;, targetLocation: &quot;${ENV_CONFIG_FILE}&quot;)]) {
+                        load &quot;${ENV_CONFIG_FILE}&quot;
+                    }
+                }
+            }
+        }
+                stage(&apos;Download ansible-playbook&apos;){
+            steps{
+                deleteDir()
+                                withCredentials([
+                        string(credentialsId: &quot;${ARTI_TOKEN_ID}&quot;, variable: &apos;artifactory_token&apos;)
+                    ]) {
+                        sh &apos;&apos;&apos;
+                                                         curl -sSf -H &quot;Authorization: Bearer $artifactory_token&quot;  -O  ${ARTIFACTORY_URL}/${PLAYBOOK_REPO}/${ENV_PLAYBOOK_NAME}
+                                                         tar -xvzf ${ENV_PLAYBOOK_NAME}
+                        &apos;&apos;&apos;
+                    }
+                        }
+                }
+//       stage(&apos;Uninstall service&apos;) {
+//            steps {
+//                    withCredentials([
+//                        sshUserPrivateKey(credentialsId: &quot;${SSH_KEY_ID}&quot;, keyFileVariable: &apos;private_key&apos;,usernameVariable: &apos;user_name&apos;)
+//                    ]) {
+//                        sh &apos;&apos;&apos;
+//                        echo ${host}&gt; hosts.yaml
+//                        ansible-playbook remove.yaml -i hosts.yaml  -u $user_name --private-key $private_key -b
+//                        &apos;&apos;&apos;
+//                    }
+//            }
+//        }
+        stage(&apos;Install service&apos;) {
+            steps {
+                    withCredentials([
+                        sshUserPrivateKey(credentialsId: &quot;${SSH_KEY_ID}&quot;, keyFileVariable: &apos;private_key&apos;,usernameVariable: &apos;user_name&apos;),
+                        file(credentialsId: &quot;${ANSIBLE_PASS_ID}&quot;, variable: &apos;ansible_pass&apos;),
+                        string(credentialsId: &quot;${ARTI_TOKEN_ID}&quot;, variable: &apos;artifactory_token&apos;)
+                    ]) {
+                        sh &apos;&apos;&apos;
+                        echo ${host}&gt; hosts.yaml
+                        ansible-playbook main.yaml -i hosts.yaml  -u $user_name --private-key $private_key -b -e app_version=$app_version -e artifactory_url=$ARTIFACTORY_URL -e artifactory_token=$artifactory_token
+                        &apos;&apos;&apos;
+                    }
+            }
+        }
+    }
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>
