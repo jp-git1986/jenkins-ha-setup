@@ -8,11 +8,13 @@
 - name: Ensure Jenkins repo is installed.
   get_url:
     url: "{{ jenkins_cm_repo_url }}"
-    dest: /etc/yum.repos.d/cloudbees-core-cm.repo  
+    dest: /etc/yum.repos.d/cloudbees-core-cm.repo 
+ 
 - name: Add Jenkins repo GPG key.
   rpm_key:
     state: present
     key: "{{ jenkins_cm_repo_key_url }}"
+
 - name: Update system
   dnf:
    name: "*"
@@ -63,11 +65,23 @@
     follow: true
     recurse: yes
 
+- name: Changing permissions on software directories
+  file:
+   path: "{{item}}"
+   state: directory
+   mode: 0777
+   follow: true
+   recurse: yes
+  with_items:
+  - /software/war
+  - /software/plugins
+   # - "{{ jenkins_opc_home }}"
+
 - name: Set the Jenkins home directory.
   lineinfile:
     dest: "{{ jenkins_init_file }}"
     regexp: '^JENKINS_HOME=.*'
-    line: 'JENKINS_HOME={{ jenkins_home }}'
+    line: 'JENKINS_HOME={{ jenkins_cm_home }}'
   register: jenkins_home_config
   
 - name: Set HTTP port in Jenkins config.

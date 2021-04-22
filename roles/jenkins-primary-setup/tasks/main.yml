@@ -121,13 +121,13 @@
     line: '{{ jenkins_http_port_param }}={{ jenkins_http_port }}'
   register: jenkins_http_config
 
-- name: Set HTTPS port in Jenkins config.
-  lineinfile:
-    backrefs: true
-    dest: "{{ jenkins_init_file }}"
-    regexp: '^{{ jenkins_https_port_param }}='
-    line: '{{ jenkins_https_port_param }}={{ jenkins_https_port }}'
-  register: jenkins_https_config
+#- name: Set HTTPS port in Jenkins config.
+#  lineinfile:
+#    backrefs: true
+#    dest: "{{ jenkins_init_file }}"
+#    regexp: '^{{ jenkins_https_port_param }}='
+#    line: '{{ jenkins_https_port_param }}={{ jenkins_https_port }}'
+#  register: jenkins_https_config
 
 - name: removing extra param from jenkins init config
   lineinfile: 
@@ -135,11 +135,11 @@
    regexp: '^JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true"'
    state: absent
 
-#- name: Restricting chown permission for jenkins home directories during upgrade
-#  lineinfile:
-#   path: "{{ jenkins_init_file }}"
-#   regexp: '^#JENKINS_INSTALL_SKIP_CHOWN.*'
-#   line: JENKINS_INSTALL_SKIP_CHOWN ="false"
+- name: Restricting chown permission for jenkins home directories during upgrade
+  lineinfile:
+   path: "{{ jenkins_init_file }}"
+   regexp: '^#JENKINS_INSTALL_SKIP_CHOWN.*'
+   line: JENKINS_INSTALL_SKIP_CHOWN ="false"
    
 - name: restart jenkins after java options added
   service:
