@@ -47,24 +47,24 @@
    -H "Jenkins-Crumb: {{ crumb_content }}" \
    -H "Cookie: {{ crumb.cookies_string }}" \
    -H "Content-Type:application/x-www-form-urlencoded" \
-    http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/createItem?name=JSCLIENT&mode=com.cloudbees.hudson.plugins.folder.Folder&Submit=OK'
+    http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/createItem?name=ECOM&mode=com.cloudbees.hudson.plugins.folder.Folder&Submit=OK'
 
-- name: Creating job for jsclient application
-  jenkins_job:
-   config: "{{ lookup('file', 'templates/jsclient-job.xml') }}"
-   name: jsclient
-   user: "{{jenkins_admin_username}}"
-   password: "{{jenkins_admin_password}}"
-   url: "http://{{ hostvars[groups['jenkins_primary'][0]]['ansible_eth0']['ipv4']['address'] }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/job/JSCLIENT -H Jenkins-Crumb: {{ crumb_content }} -H Cookie: {{ crumb.cookies_string }}"
+#- name: Creating job for jsclient application
+#  jenkins_job:
+#   config: "{{ lookup('file', 'templates/jsclient-job.xml') }}"
+#   name: jsclient
+#   user: "{{jenkins_admin_username}}"
+#   password: "{{jenkins_admin_password}}"
+#   url: "http://{{ hostvars[groups['jenkins_primary'][0]]['ansible_eth0']['ipv4']['address'] }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/job/JSCLIENT -H Jenkins-Crumb: {{ crumb_content }} -H Cookie: {{ crumb.cookies_string }}"
 
-#- name: Creating jenkins jobs inside the folder
-#  command: 'curl -X POST \
-#   -u "{{ jenkins_admin_username }}:{{ jenkins_admin_password }}" \
-#   -H "Jenkins-Crumb: {{ crumb_content }}" \
-#   -H "Cookie: {{ crumb.cookies_string }}" \
-#   -H "Content-Type:text/xml" \
-#   --data-binary @/home/ec2-user/jsclient-job.xml \
-#    http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/job/JSCLIENT/createItem?name=jsclient'
+- name: Creating jenkins jobs inside the folder
+  command: 'curl -X POST \
+   -u "{{ jenkins_admin_username }}:{{ jenkins_admin_password }}" \
+   -H "Jenkins-Crumb: {{ crumb_content }}" \
+   -H "Cookie: {{ crumb.cookies_string }}" \
+   -H "Content-Type:text/xml" \
+   --data-binary @/home/ec2-user/jsclient-job.xml \
+    http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/job/ECOM/createItem?name=jsclient'
 
 
 #- name: Creating jenkins jobs inside the folder using jenkins rest api
