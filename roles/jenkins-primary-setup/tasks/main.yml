@@ -152,9 +152,9 @@
 #   state: started
 #   enabled: yes
 
-- name: Pausing playbook 30 secs for service availability
+- name: Pausing playbook 45 secs for service availability
   pause:
-   seconds: 30
+   seconds: 45
    
 
 - name: Wait for Jenkins to start up before proceeding.
@@ -292,7 +292,7 @@
 - name: Install Jenkins plugins using password
   jenkins_plugin:
     name: "{{ item.name | default(item) }}"
-    owner: clodbees-core-cm
+    owner: cloudbees-core-cm
     group: cloudbees-core-cm
     version: "{{ item.version | default(omit) }}"
     jenkins_home: "{{ jenkins_cm_home }}"
@@ -307,7 +307,6 @@
     with_dependencies: "{{ jenkins_plugins_install_dependencies }}"
   with_items: "{{ jenkins_plugins }}"
   when: jenkins_admin_password | default(false)
-  notify: restart jenkins cm
   register: plugin_result
   until: plugin_result is success
   retries: 3
@@ -315,9 +314,29 @@
 #  tags:
  # - never
 
+- name: restart jenkins cm
+  service: name=cloudbees-core-cm state=restarted
+  when: plugin_result.changed
+
+- name: Wait for Jenkins to start up before proceeding.
+  uri:
+    url: "http://{{ jenkins_cm_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+    method: GET
+    return_content: "yes"
+    timeout: 5
+    body_format: raw
+    follow_redirects: "no"
+    status_code: 200,403
+  register: result
+  until: (result.status == 403 or result.status == 200) and (result.content.find("Please wait while") == -1)
+  retries: "{{ jenkins_connection_retries }}"
+  delay: "{{ jenkins_connection_delay }}"
+  changed_when: false
+  check_mode: false
+
 - name: Pausing playbook 30 secs for jenkins crumb availability
   pause:
-   seconds: 30  
+   seconds: 30
 
 
 - name: Downloading crumb for adding slave agent user
@@ -339,8 +358,8 @@
     url: http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/scriptText
     method: POST
     body: "script={{lookup('template', 'templates/add-jenkins-cred.groovy.j2')|urlencode}}"
-    user: admin
-    password: admin
+    user: "{{ jenkins_admin_username }}"
+    password: "{{ jenkins_admin_password }}"
     status_code: 200,302
     force_basic_auth: yes
     headers:

@@ -27,7 +27,7 @@ jenkins_init_changes:
   - option: "{{ jenkins_java_opt_var }}"
     value: "{{ jenkins_java_options }}"
 # Plugin list can use the plugin name, or a name/version dict.
-jenkins_plugins: [cloudbees-template,jquery-detached,gradle,cloudbees-folder,durable-task,cloudbees-administrative-monitors,plain-credentials,pipeline-stage-view,blueocean-commons,async-http-client,metrics,cloudbees-workflow-template,workflow-cps-checkpoint,cloudbees-blueocean-default-theme,cloudbees-folders-plus,github,support-core,bouncycastle-api,cloudbees-view-creation-filter,workflow-job,config-file-provider,pipeline-model-api,workflow-step-api,cloudbees-analytics,cloudbees-jsync-archiver,mapdb-api,workflow-aggregator,ldap,cloudbees-groovy-view,pipeline-model-extensions,okhttp-api,pipeline-stage-tags-metadata,plugin-util-api,echarts-api,workflow-multibranch,cloudbees-workflow-ui,aws-java-sdk,apache-httpcomponents-client-4-api,cloudbees-uc-data-api,ssh-credentials,matrix-project,cloudbees-monitoring,bootstrap4-api,variant,workflow-support,branch-api,jaxb,display-url-api,popper-api,cloudbees-github-reporting,momentjs,ace-editor,nectar-license,cloudbees-nodes-plus,workflow-durable-task-step,workflow-cps-global-lib,pipeline-stage-step,token-macro,cloudbees-update-center-plugin,git-client,cloudbees-support,git-server,cloudbees-assurance,jsch,structs,pipeline-rest-api,git,matrix-auth,node-iterator-api,handlebars,jdk-tool,workflow-scm-step,operations-center-context,pipeline-milestone-step,github-branch-source,snakeyaml-api,pipeline-build-step,pipeline-input-step,trilead-api,cloudbees-ha,cloudbees-ssh-slaves,font-awesome-api,role-strategy,workflow-api,jackson2-api,nectar-rbac,github-api,script-security,jquery3-api,cloudbees-jenkins-advisor,mailer,scm-api,pipeline-model-definition,junit,email-ext,infradna-backup,aws-credentials,operations-center-cloud,pipeline-graph-analysis,workflow-basic-steps,cloudbees-license,credentials-binding,command-launcher,operations-center-client,credentials,workflow-cps,operations-center-agent]
+jenkins_plugins: [cloudbees-template,jquery-detached,gradle,cloudbees-folder,durable-task,cloudbees-administrative-monitors,plain-credentials,pipeline-stage-view,blueocean-commons,async-http-client,metrics,cloudbees-workflow-template,workflow-cps-checkpoint,cloudbees-blueocean-default-theme,cloudbees-folders-plus,github,support-core,bouncycastle-api,cloudbees-view-creation-filter,workflow-job,config-file-provider,pipeline-model-api,workflow-step-api,cloudbees-analytics,cloudbees-jsync-archiver,mapdb-api,workflow-aggregator,ldap,cloudbees-groovy-view,pipeline-model-extensions,okhttp-api,pipeline-stage-tags-metadata,plugin-util-api,echarts-api,workflow-multibranch,cloudbees-workflow-ui,aws-java-sdk,apache-httpcomponents-client-4-api,cloudbees-uc-data-api,ssh-slaves,credentials,ssh-credentials,matrix-project,cloudbees-monitoring,bootstrap4-api,variant,workflow-support,branch-api,jaxb,display-url-api,popper-api,cloudbees-github-reporting,momentjs,ace-editor,nectar-license,cloudbees-nodes-plus,workflow-durable-task-step,workflow-cps-global-lib,pipeline-stage-step,token-macro,cloudbees-update-center-plugin,git-client,cloudbees-support,git-server,cloudbees-assurance,jsch,structs,pipeline-rest-api,git,matrix-auth,node-iterator-api,handlebars,jdk-tool,workflow-scm-step,operations-center-context,pipeline-milestone-step,github-branch-source,snakeyaml-api,pipeline-build-step,pipeline-input-step,trilead-api,cloudbees-ha,cloudbees-ssh-slaves,font-awesome-api,role-strategy,workflow-api,jackson2-api,nectar-rbac,github-api,script-security,jquery3-api,cloudbees-jenkins-advisor,mailer,scm-api,pipeline-model-definition,junit,email-ext,infradna-backup,aws-credentials,operations-center-cloud,pipeline-graph-analysis,workflow-basic-steps,cloudbees-license,credentials-binding,command-launcher,operations-center-client,credentials,workflow-cps,operations-center-agent,ssh-credentials]
  # - blueocean
 #  - name: influxdb
 #    version: "1.12.1"
@@ -39,38 +39,44 @@ jenkins_plugins_install_dependencies: true
 #jenkins_updates_url: "https://updates.jenkins.io"
 jenkins_updates_url: "https://jenkins-updates.cloudbees.com/"
 
-jenkins_admin_username: admin
-jenkins_admin_password: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          38353038303334313234643235326361373734643466613034323334663937303531316538636561
-          6465363835623963666238626664326439666136623362650a653136376263306264386230613331
-          36646639386465343164303833313532353435383364393230386361393930316531363031353462
-          3161363265353564370a636137613731373062646362663561343134326566393562633733663036
-          3738
+#jenkins_admin_username: admin
+#jenkins_admin_password: !vault |
+ #         $ANSIBLE_VAULT;1.1;AES256
+ #         38353038303334313234643235326361373734643466613034323334663937303531316538636561
+ #         6465363835623963666238626664326439666136623362650a653136376263306264386230613331
+ #         36646639386465343164303833313532353435383364393230386361393930316531363031353462
+ #         3161363265353564370a636137613731373062646362663561343134326566393562633733663036
+ #         3738
 #jenkins_admin_password: admin
-jenkins_admin_password_file: ""
+#jenkins_admin_password_file: ""
 
 jenkins_cm_username: cloudbees-core-cm
 jenkins_cm_groupname: cloudbees-core-cm
 slave_linux_jenkins_cred_id: jenkins_slave_automation_cred
-slave_linux_jenkins_username: automation
-slave_linux_jenkins_password: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          34623463656565393065613139356534326161656330326536356465366164333435376234306638
-          3536303533653431336430323838313063306264396338640a653034323533623036316231376136
-          33313164653066393232616438613235376331633265393333303737303339373665643266643464
-          3030326539656339650a663062613766623339326535636434313035616234623763306138666339
-          6132
-slave_linux_jenkins_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDASXuBDqYxOSM5TuFhfiGhQ4dQ6Em9+oBCB3t/IREjO4LJ0OiwSHtuhrbXm/6zI/Gra9iM17nm6hXS6vIU+D6wc3JPwQaTbG+AJdTmNHiac/W7EdBahUMEkvBnuQfrSGh66CP+YXXCuYPkSmzYPUNTd8itWHLIIuaUfqkt/Twn/8EDLOp/Eic+V1Xyx7LxePKSAxoUz+lrYB2ECFEEqvu9VA9GiD03Jcc0rABP1E6+velnnJaB8vbL3oowE2L6IAAj1D6CCAU/b1+SeHXB0ZrPNgxz/JkpiIXkiq+y84GSfk6erBUox3q2CtXxdQNhYrPD4HS1ZJHzvQHtNmBu60FKtxfkSw3IBWqFhOUPjuO60rEqGEniFmHFDk0M9ND5BoKtJG6WqYzys4dt2rvpCvZ9ANaQocBMF+qpsR7AnVftjut2rRGT7nQmnQqFWkF3vsqVI12Vl8NccKkP7f/BFJcTta8NbHy9PJ++l7n2B0CeblQTepk1veqSUGDN26y5NfM="
+#slave_linux_jenkins_username: automation
+#slave_linux_jenkins_password: !vault |
+ #         $ANSIBLE_VAULT;1.1;AES256
+ #         34623463656565393065613139356534326161656330326536356465366164333435376234306638
+ #         3536303533653431336430323838313063306264396338640a653034323533623036316231376136
+ #         33313164653066393232616438613235376331633265393333303737303339373665643266643464
+ #         3030326539656339650a663062613766623339326535636434313035616234623763306138666339
+ #         6132
+#slave_linux_jenkins_public_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDASXuBDqYxOSM5TuFhfiGhQ4dQ6Em9+oBCB3t/IREjO4LJ0OiwSHtuhrbXm/6zI/Gra9iM17nm6hXS6vIU+D6wc3JPwQaTbG+AJdTmNHiac/W7EdBahUMEkvBnuQfrSGh66CP+YXXCuYPkSmzYPUNTd8itWHLIIuaUfqkt/Twn/8EDLOp/Eic+V1Xyx7LxePKSAxoUz+lrYB2ECFEEqvu9VA9GiD03Jcc0rABP1E6+velnnJaB8vbL3oowE2L6IAAj1D6CCAU/b1+SeHXB0ZrPNgxz/JkpiIXkiq+y84GSfk6erBUox3q2CtXxdQNhYrPD4HS1ZJHzvQHtNmBu60FKtxfkSw3IBWqFhOUPjuO60rEqGEniFmHFDk0M9ND5BoKtJG6WqYzys4dt2rvpCvZ9ANaQocBMF+qpsR7AnVftjut2rRGT7nQmnQqFWkF3vsqVI12Vl8NccKkP7f/BFJcTta8NbHy9PJ++l7n2B0CeblQTepk1veqSUGDN26y5NfM="
 #private_key_file: /home/ec2-user/.ssh/id_rsa
-ssh_credentials:
-  - name: Jenkins user on jenkins-master connecting to slave nodes
-    credentials_id:  "jenkins_slave_automation_cred"
-    ssh_key_escaped: "{{lookup('file', '/home/ec2-user/jenkins-ha-setup/id_rsa')|replace('\n', '\\n')}}"
-    username: "automation"
-password_credentials:
-  - name: imgbuild Openstack service user
-    credentials_id: "imgbuild_os_credentials"
-    username: "{{lookup('env', 'OS_USERNAME')}}"
-    password: "{{lookup('env', 'OS_PASSWORD')}}"
+#ssh_credentials:
+#  - name: Jenkins user on jenkins-master connecting to slave nodes
+#    credentials_id:  "jenkins_slave_automation_cred"
+#    ssh_key_escaped: "{{lookup('vars', 'slave_linux_jenkins_private_key')|replace('\n', '\\n')}}"
+#    username: "automation"
+#password_credentials:
+#  - name: imgbuild Openstack service user
+#    credentials_id: "imgbuild_os_credentials"
+#    username: "{{lookup('env', 'OS_USERNAME')}}"
+#    password: "{{lookup('env', 'OS_PASSWORD')}}"
+
+#ssh_credentials:
+#  - name: Jenkins user on jenkins-master connecting to slave nodes
+#    credentials_id:  "jenkins_slave_automation_cred"
+#    ssh_key_escaped: "{{lookup('file', '/home/ec2-user/jenkins-ha-setup/id_rsa')|replace('\n', '\\n')}}"
+#    username: "automation"
 

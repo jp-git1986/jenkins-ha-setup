@@ -17,22 +17,8 @@ new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(
 )
 {% endfor %}
 
-{% for cred in password_credentials %}
-password_credentials_{{cred.credentials_id}} = new UsernamePasswordCredentialsImpl(
-CredentialsScope.GLOBAL,
-"{{ cred.credentials_id }}",
-"{{ cred.name }}",
-"{{ cred.username }}",
-"{{ cred.password}}"
-)
-{% endfor %}
-
 store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
 
 {% for cred in ssh_credentials %}
 store.addCredentials(Domain.global(), ssh_credentials_{{cred.credentials_id}})
-{% endfor %}
-
-{% for cred in password_credentials %}
-store.addCredentials(Domain.global(), password_credentials_{{cred.credentials_id}})
 {% endfor %}

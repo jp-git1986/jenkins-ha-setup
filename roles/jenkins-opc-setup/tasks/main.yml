@@ -181,7 +181,6 @@
     jenkins_plugin:
       name: "{{ item.name | default(item) }}"
       owner: cloudbees-core-oc
-      group: cloudbees-core-oc
       version: "{{ item.version | default(omit) }}"
       jenkins_home: "{{ jenkins_opc_home }}"
       url_username: "{{ jenkins_admin_username }}"
