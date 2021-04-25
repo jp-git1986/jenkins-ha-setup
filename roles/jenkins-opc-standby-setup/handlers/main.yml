@@ -1,0 +1,5 @@
+---
+# handlers file for opc-config
+
+- name: restart jenkins opc
+  service: name=cloudbees-core-oc state=restarted

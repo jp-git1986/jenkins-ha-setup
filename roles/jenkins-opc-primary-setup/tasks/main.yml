@@ -59,6 +59,23 @@
   #   line: JENKINS_PORT="{{ jenkins_opc_port }}"
   #   path: "{{ jenkins_opc_init_file }}"
 
+  - name: Ensure jenkins_home {{ jenkins_opc_home }} exists.
+    file:
+      path: "{{ jenkins_opc_home }}"
+      state: directory
+      owner: "{{ jenkins_opc_username }}"
+    #group: " {{ jenkins_groupname }}"
+      mode: u+rwx
+      follow: true
+      recurse: yes
+
+  - name: Set the Jenkins opc home directory.
+    lineinfile:
+      dest: "{{ jenkins_opc_init_file }}"
+      regexp: '^JENKINS_HOME=.*'
+      line: 'JENKINS_HOME={{ jenkins_opc_home }}'
+    register: jenkins_home_config
+
   - name: Restarting JOC after changes in configuration
     service: 
      name: cloudbees-core-oc
@@ -181,6 +198,7 @@
     jenkins_plugin:
       name: "{{ item.name | default(item) }}"
       owner: cloudbees-core-oc
+      group: cloudbees-core-oc
       version: "{{ item.version | default(omit) }}"
       jenkins_home: "{{ jenkins_opc_home }}"
       url_username: "{{ jenkins_admin_username }}"
@@ -199,3 +217,6 @@
     until: plugin_result is success
     retries: 3
     delay: 2
+  
+  - name: restart jenkins opc
+    service: name=cloudbees-core-oc state=restarted

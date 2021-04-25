@@ -2,6 +2,7 @@
 - hosts: all
   become: yes
   gather_facts: true
+  any_errors_fatal: true
   vars_files:
   - vars/secrets.yml
   - vars/all.yml
@@ -9,7 +10,8 @@
 #  - { role: jenkins-cm-vol-setup, when: jenkins_masters is defined }
 #  - { role: jenkins-primary-setup, when: jenkins_primary is defined }
 #  - { role: jenkins-standby-setup, when: jenkins_standby is defined }
-#   - { role: jenkins-opc-vol-setup, when: jenkins_opc is defined }
-#  - { role: jenkins-opc-setup, when: jenkins_opc is defined }
-  - { role: jenkins-slave-setup, when: jenkins_slave is defined }
-#   - { role: jenkins-jobs-setup, when: jenkins_primary is defined }
+#  - { role: jenkins-opc-vol-setup, when: jenkins_opc_groups is defined }
+# - { role: jenkins-opc-primary-setup, when: jenkins_opc_primary is defined }
+#  - { role: jenkins-opc-standby-setup, when: jenkins_opc_standby is defined }
+#  - { role: jenkins-slave-setup, when: jenkins_slave is defined }
+  - { role: jenkins-jobs-setup, when: jenkins_primary is defined }

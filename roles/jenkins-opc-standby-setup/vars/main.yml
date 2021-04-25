@@ -1,0 +1,11 @@
+---
+# vars file for opc-config
+jenkins_opc_home: /mnt/var/lib/cloudbees-core-oc
+jenkins_opc_http_port: 8888
+jenkins_opc_hostname: localhost
+jenkins_opc_repo_url: https://downloads.cloudbees.com/cloudbees-core/traditional/operations-center/rolling/rpm/cloudbees-core-oc.repo
+jenkins_opc_repo_key_url: https://downloads.cloudbees.com/jenkins-operations-center/rolling/rpm/cloudbees.com.key
+jenkins_opc_init_file: /etc/sysconfig/cloudbees-core-oc
+jenkins_opc_username: cloudbees-core-oc
+jenkins_opc_groupname: cloudbees-core-oc
+jenkins_opc_plugins: [aws-java-sdk,apache-httpcomponents-client-4-api,async-http-client,cloudbees-assurance,bootstrap4-api,aws-credentials,cloudbees-administrative-monitors,cloudbees-analytics,infradna-backup,cloudbees-folders-plus,cloudbees-ha,nectar-license,cloudbees-license,cloudbees-monitoring,nectar-rbac,cloudbees-ssh-slaves,cloudbees-support,cloudbees-uc-data-api,cloudbees-update-center-plugin,command-launcher,credentials-binding,credentials,display-url-api,echarts-api,cloudbees-folder,font-awesome-api,cloudbees-jenkins-advisor,jaxb,jquery3-api,junit,jackson2-api,ldap,mailer,mapdb-api,metrics,node-iterator-api,antisamy-markup-formatter,operations-center-agent,operations-center-context,operations-center-jnlp-controller,operations-center-monitoring,operations-center-clusterops,operations-center-license,operations-center-server,operations-center-rbac,operations-center-sso,operations-center-updatecenter,jdk-tool,workflow-api,workflow-step-api,plain-credentials,plugin-util-api,popper-api,scm-api,ssh-credentials,script-security,snakeyaml-api,structs,support-core,token-macro,trilead-api,variant,bouncycastle-api]

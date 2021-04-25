@@ -2,7 +2,9 @@
 
 3.19.74.64  ansible_host=ec2-3-19-74-64.us-east-2.compute.amazonaws.com ansible_user=ec2-user
 
-18.191.78.231 ansible_host=ec2-18-191-78-231.us-east-2.compute.amazonaws.com ansible_user=ec2-user
+3.140.216.90 ansible_host=ec2-3-140-216-90.us-east-2.compute.amazonaws.com ansible_user=ec2-user
+
+3.142.239.227 ansible_host=ec2-3-142-239-227.us-east-2.compute.amazonaws.com ansible_user=ec2-user
 
 3.142.153.71 ansible_host=ec2-3-142-153-71.us-east-2.compute.amazonaws.com ansible_user=ec2-user
 
@@ -16,8 +18,15 @@
 3.14.1.156
 3.19.74.64
 
-[jenkins_opc]
-18.191.78.231
+[jenkins_opc_groups]
+3.140.216.90
+3.142.239.227
+
+[jenkins_opc_primary]
+3.140.216.90
+
+[jenkins_opc_standby]
+3.142.239.227
 
 [jenkins_slave]
 3.142.153.71
@@ -31,8 +40,13 @@ jenkins_primary=true
 [jenkins_standby:vars]
 jenkins_standby=true
 
-[jenkins_opc:vars]
-jenkins_opc=true
+[jenkins_opc_groups:vars]
+jenkins_opc_groups=true
+[jenkins_opc_primary:vars]
+jenkins_opc_primary=true
+
+[jenkins_opc_standby:vars]
+jenkins_opc_standby=true
 
 [jenkins_slave:vars]
 jenkins_slave=true

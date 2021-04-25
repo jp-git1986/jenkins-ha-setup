@@ -1,0 +1,95 @@
+---
+  #- name: Install initial dependencies.
+  #  package:
+   #  name:
+   #  - curl
+   #  - wget
+    # - java-1.8.0-openjdk-devel
+    # - python3
+    # state: present
+  - name: Install initial dependencies.
+    package:
+     name: "{{ item }}"
+     state: present
+    with_items: "{{ dependent_pkgs }}" 
+  - name: Adding ops center repo
+    get_url:
+     url: "{{ jenkins_opc_repo_url }}"
+     dest: "/etc/yum.repos.d/cloudbees-core-oc.repo"
+  - name: Adding ops center rpm repo key
+    rpm_key:
+     state: present
+     key: "{{ jenkins_opc_repo_key_url }}"
+  - name: Update system
+    dnf:
+     name: "*"
+     state: latest
+  - name: Installing cloudbees core oc package
+    dnf:
+     name: cloudbees-core-oc
+     state: latest
+
+  - name: enable cloudbees core oc on boot
+    service:
+     name: cloudbees-core-oc
+     state: started
+     enabled: yes
+  #- name: check_task
+  #  debug:
+   #  msg="{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+
+ # - name: Changing permissions on software directories
+ #   file:
+ #    path: "{{item}}"
+ #    state: directory
+ #    mode: 0777
+ #   with_items:
+ #   - /software/war
+ #   - /software/plugins
+ #   - "{{ jenkins_opc_home }}"
+
+  #- name: Changing the Java options of cloud bees core cm file
+  #  lineinfile:
+  #   path: "{{ jenkins_opc_init_file }}"
+  #   regexp: '^JENKINS_ARGS=""'
+  #   line: JENKINS_ARGS="-Dhudson.TcpSlaveAgentListener.hostName={{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}} --webroot=/software/war --pluginroot=/software/plugins"
+
+  #- name: Changing JOC Default port from 8080 to 8888
+  #  lineinfile:
+  #   regexp: '^JENKINS_PORT="8080"'
+  #   line: JENKINS_PORT="{{ jenkins_opc_port }}"
+  #   path: "{{ jenkins_opc_init_file }}"
+
+  - name: Set the Jenkins home directory.
+    lineinfile:
+      dest: "{{ jenkins_opc_init_file }}"
+      regexp: '^JENKINS_HOME=.*'
+      line: 'JENKINS_HOME={{ jenkins_opc_home }}'
+    register: jenkins_home_config
+
+  - name: Restarting JOC after changes in configuration
+    service: 
+     name: cloudbees-core-oc
+     state: restarted
+
+  - name: Pausing playbook 60 secs for service availability
+    pause:
+     seconds: 60 
+
+  - name: Wait for Jenkins to start up before proceeding.
+    uri:
+      url: "http://{{ jenkins_opc_hostname }}:{{ jenkins_opc_http_port }}"
+      method: GET
+      return_content: "yes"
+      timeout: 5
+      body_format: raw
+      follow_redirects: "no"
+      status_code: 200,403
+    register: result
+    until: (result.status == 403 or result.status == 200) and (result.content.find("Please wait while") == -1)
+    retries: "{{ jenkins_connection_retries }}"
+    delay: "{{ jenkins_connection_delay }}"
+    changed_when: false
+    check_mode: false
+
+  

@@ -8,6 +8,11 @@
    name: python-jenkins
    state: latest
 
+- name: copy job template to /tmp dir
+  template:
+   src: jsclient-job.xml.j2
+   dest: /tmp/jsclient-job.xml
+
 - name: Downloading crumb for adding slave agent user
   uri:
     url: http://{{ jenkins_cm_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)
@@ -63,7 +68,7 @@
    -H "Jenkins-Crumb: {{ crumb_content }}" \
    -H "Cookie: {{ crumb.cookies_string }}" \
    -H "Content-Type:text/xml" \
-   --data-binary @/home/ec2-user/jsclient-job.xml \
+   --data-binary @/tmp/jsclient-job.xml \
     http://{{jenkins_cm_hostname}}:{{jenkins_http_port}}{{jenkins_url_prefix}}/job/ECOM/createItem?name=jsclient'
 
 
