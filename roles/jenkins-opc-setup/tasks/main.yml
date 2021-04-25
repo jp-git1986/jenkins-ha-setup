@@ -130,3 +130,71 @@
     delay: "{{ jenkins_connection_delay }}"
     changed_when: false
     check_mode: false
+
+
+  - name: Create Jenkins updates directory.
+  file:
+    path: "{{ jenkins_opc_home }}/updates"
+    state: directory
+    owner: "{{ jenkins_opc_username }}"
+    group: "{{ jenkins_opc_groupname }}"
+  #tags: 
+  #- primary-standby
+
+- name: Download current plugin updates from Jenkins update site.
+  get_url:
+    url: "{{ jenkins_updates_url }}"
+    dest: "{{ jenkins_opc_home }}/updates/default.json"
+    owner: "{{ jenkins_opc_username }}"
+    group: "{{ jenkins_opc_groupname }}"
+    mode: 0440
+  changed_when: false
+  register: get_result
+  until: get_result is success
+  retries: 3
+  delay: 2
+  #tags: 
+  #- primary-standby
+
+- name: Remove first and last line from json file.
+  replace:
+    path: "{{ jenkins_opc_home }}/updates/default.json"
+    regexp: "1d;$d"
+  #tags: 
+  #- primary
+
+- name: Pausing playbook 45 secs for service availability
+  pause:
+   seconds: 45
+
+#- name: Downloading crumb for adding slave agent user
+#  uri:
+#    url: http://{{ jenkins_cm_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)
+#    url: 'http://localhost:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)'
+#    user: "{{ jenkins_admin_username }}"
+#    password: "{{ jenkins_admin_password }}"
+#    force_basic_auth: yes
+#    return_content: yes
+#  register: crumb
+
+- name: Install Jenkins plugins using password
+  jenkins_plugin:
+    name: "{{ item.name | default(item) }}"
+    version: "{{ item.version | default(omit) }}"
+    jenkins_home: "{{ jenkins_opc_home }}"
+    url_username: "{{ jenkins_admin_username }}"
+    url_password: "{{ jenkins_admin_password }}"
+    state: "{{ 'present' if item.version is defined else jenkins_plugins_state }}"
+    timeout: "{{ jenkins_plugin_timeout }}"
+    updates_expiration: "{{ jenkins_plugin_updates_expiration }}"
+    updates_url: "{{ jenkins_updates_url }}"
+    url: "http://{{ jenkins_opc_hostname }}:{{ jenkins_opc_http_port }}{{ jenkins_url_prefix }}"
+    use_proxy: false
+    with_dependencies: "{{ jenkins_plugins_install_dependencies }}"
+  with_items: "{{ jenkins_plugins }}"
+  when: jenkins_admin_password | default(false)
+  notify: restart jenkins opc
+  register: plugin_result
+  until: plugin_result is success
+  retries: 3
+  delay: 2

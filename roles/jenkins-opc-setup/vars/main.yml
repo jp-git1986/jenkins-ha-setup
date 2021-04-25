@@ -1,7 +1,7 @@
 ---
 # vars file for opc-config
 jenkins_opc_home: /var/lib/cloudbees-core-oc
-jenkins_opc_port: 8888
+jenkins_opc_http_port: 8888
 jenkins_opc_hostname: localhost
 jenkins_opc_repo_url: https://downloads.cloudbees.com/cloudbees-core/traditional/operations-center/rolling/rpm/cloudbees-core-oc.repo
 jenkins_opc_repo_key_url: https://downloads.cloudbees.com/jenkins-operations-center/rolling/rpm/cloudbees.com.key
