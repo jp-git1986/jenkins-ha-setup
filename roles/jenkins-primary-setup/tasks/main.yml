@@ -39,14 +39,14 @@
    state: started 
    enabled: yes
 
-- name: Create group jenkins
-  group:
-   name: jenkins
+#- name: Create group jenkins
+#  group:
+#   name: jenkins
 
-- name: create user jenkins
-  user:
-   name: jenkins
-   group: jenkins
+#- name: create user jenkins
+#  user:
+#   name: jenkins
+#   group: jenkins
 
 #- name: Changing permissions for required folders
 #  file:
@@ -292,6 +292,7 @@
 - name: Install Jenkins plugins using password
   jenkins_plugin:
     name: "{{ item.name | default(item) }}"
+    owner: clodbees-core-cm
     version: "{{ item.version | default(omit) }}"
     jenkins_home: "{{ jenkins_cm_home }}"
     url_username: "{{ jenkins_admin_username }}"
