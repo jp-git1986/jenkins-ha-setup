@@ -293,6 +293,7 @@
   jenkins_plugin:
     name: "{{ item.name | default(item) }}"
     owner: clodbees-core-cm
+    group: cloudbees-core-cm
     version: "{{ item.version | default(omit) }}"
     jenkins_home: "{{ jenkins_cm_home }}"
     url_username: "{{ jenkins_admin_username }}"
