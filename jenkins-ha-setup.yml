@@ -14,4 +14,5 @@
 # - { role: jenkins-opc-primary-setup, when: jenkins_opc_primary is defined }
 #  - { role: jenkins-opc-standby-setup, when: jenkins_opc_standby is defined }
 #  - { role: jenkins-slave-setup, when: jenkins_slave is defined }
+# This will going to configure jenkins job
   - { role: jenkins-jobs-setup, when: jenkins_primary is defined }
